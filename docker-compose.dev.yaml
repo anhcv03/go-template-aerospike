@@ -4,6 +4,10 @@ services:
   aerospike:
     image: aerospike:ce-8.1.1.1
     container_name: utm-track-manager-aerospike
+    ulimits:
+      nofile:
+        soft: 20000
+        hard: 20000
     ports:
       - "3000:3000"
     healthcheck:
