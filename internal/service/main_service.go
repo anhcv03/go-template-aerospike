@@ -28,12 +28,10 @@ import (
 
 const (
 	ORDER_SERVICE             = "order"
-	trackSetName             = "tracks"
-	trackHistorySetName      = "track_history"
-	trackIDBinName           = "track_id"
-	tracksSetIndexName       = "tracks_set_idx"
-	trackHistorySetIndexName = "th_set_idx"
-	tracksTrackIDIndexName   = "tracks_tid_idx"
+	trackSetName              = "tracks"
+	trackHistorySetName       = "track_history"
+	trackIDBinName            = "track_id"
+	tracksTrackIDIndexName    = "tracks_tid_idx"
 	trackHistTrackIDIndexName = "th_tid_idx"
 )
 
@@ -55,14 +53,14 @@ type MainService struct {
 	SvcConfig      *config.ServiceConfig
 	scheduler      *gocron.Scheduler
 	NATSConnection *nats.Conn
-	SocketServer *socketio.Server
+	SocketServer   *socketio.Server
 	httpClient     *http.Client
 	OrderHub       *websocket.Hub
-	trackCh   chan *dbmodel.Track
-	trackMap		map[int32]*pb.Track
-	historyCh   chan *dbmodel.TrackHistory
-	BatchSize   int
-	BatchMaxAge time.Duration
+	trackCh        chan *dbmodel.Track
+	trackMap       map[int32]*pb.Track
+	historyCh      chan *dbmodel.TrackHistory
+	BatchSize      int
+	BatchMaxAge    time.Duration
 }
 
 func createIndex(rType reflect.Type, collection *qmgo.Collection) {
@@ -99,7 +97,7 @@ func createIndex(rType reflect.Type, collection *qmgo.Collection) {
 	config.PrintDebugLog(ctx, "Done to create index for type: %s - Collection: %s", typeName, collectionName)
 }
 
-func (us *MainService) publishEvent(ctx context.Context, data []byte, routingKey string)  error {
+func (us *MainService) publishEvent(ctx context.Context, data []byte, routingKey string) error {
 	err := us.NATSConnection.Publish(routingKey, data)
 	if err != nil {
 		log.Debug().Msgf("Failed to publish to nats server for: %s", routingKey)
@@ -115,7 +113,7 @@ func New(dbClient *as.Client, cfg config.ServiceConfig, nc *nats.Conn, socketSer
 	// initColl()
 
 	svc := &MainService{
-		DbClient:       dbClient,
+		DbClient: dbClient,
 		// gClient:        gc,
 		SvcConfig:      &cfg,
 		scheduler:      gocron.NewScheduler(time.UTC),
@@ -124,11 +122,11 @@ func New(dbClient *as.Client, cfg config.ServiceConfig, nc *nats.Conn, socketSer
 			Timeout: 10 * time.Second,
 		},
 		SocketServer: socketServer,
-		trackMap: make(map[int32]*pb.Track),
-		trackCh: make (chan *dbmodel.Track, 10000),
-		historyCh:   make(chan *dbmodel.TrackHistory, 10000),
-		BatchSize:   cfg.TrackConfig.History_Batch_Size,
-		BatchMaxAge: time.Duration(cfg.TrackConfig.History_Batch_Max_Age) * time.Millisecond,
+		trackMap:     make(map[int32]*pb.Track),
+		trackCh:      make(chan *dbmodel.Track, 10000),
+		historyCh:    make(chan *dbmodel.TrackHistory, 10000),
+		BatchSize:    cfg.TrackConfig.History_Batch_Size,
+		BatchMaxAge:  time.Duration(cfg.TrackConfig.History_Batch_Max_Age) * time.Millisecond,
 	}
 
 	// Cronjob: mỗi 1 phút tạo 1 đơn demo và dọn dẹp đơn demo cũ (>50)
@@ -150,16 +148,6 @@ func (us *MainService) SetOrderHub(hub *websocket.Hub) {
 
 func (s *MainService) MigrateDB() error {
 	namespace := s.SvcConfig.DbConfig.Namespace
-
-	if err := dbstore.EnsureSetIndex(s.DbClient, namespace, trackSetName, tracksSetIndexName); err != nil {
-		log.Error().Err(err).Msg("create tracks set index failed")
-		return err
-	}
-
-	if err := dbstore.EnsureSetIndex(s.DbClient, namespace, trackHistorySetName, trackHistorySetIndexName); err != nil {
-		log.Error().Err(err).Msg("create track history set index failed")
-		return err
-	}
 
 	if err := dbstore.EnsureSecondaryIndex(s.DbClient, namespace, trackSetName, tracksTrackIDIndexName, trackIDBinName, as.NUMERIC); err != nil {
 		log.Error().Err(err).Msg("create tracks track_id index failed")
