@@ -71,22 +71,24 @@ func (ad *AerospikeDB) ensureNamespaceExists(client *as.Client) error {
 		return fmt.Errorf("aerospike cluster is empty")
 	}
 
-	command := "namespace/" + ad.DbConfig.Namespace
-	info, err := nodes[0].RequestInfo(as.NewInfoPolicy(), command)
+	info, err := nodes[0].RequestInfo(as.NewInfoPolicy(), "namespaces")
 	if err != nil {
 		return err
 	}
 
-	value, ok := info[command]
-	if !ok || value == "" {
-		return fmt.Errorf("namespace %s not found", ad.DbConfig.Namespace)
+	nsList, ok := info["namespaces"]
+	if !ok || nsList == "" {
+		return fmt.Errorf("failed to retrieve namespaces")
 	}
 
-	if strings.HasPrefix(strings.ToUpper(value), "ERROR") {
-		return fmt.Errorf("namespace %s not found: %s", ad.DbConfig.Namespace, value)
+	namespaces := strings.Split(nsList, ";")
+	for _, ns := range namespaces {
+		if ns == ad.DbConfig.Namespace {
+			return nil
+		}
 	}
 
-	return nil
+	return fmt.Errorf("namespace %s not found", ad.DbConfig.Namespace)
 }
 
 func buildHosts(cfg config.AerospikeConfig) ([]*as.Host, error) {

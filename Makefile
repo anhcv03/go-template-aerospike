@@ -226,6 +226,6 @@ server:
 	@make go-build && ./bin/$(MODULE_NAME) start
 
 dev:
-	docker compose -f docker-compose.dev.yaml up
+	docker compose -f docker-compose.dev.yaml up --build
 
 .PHONY: tools vendor proto

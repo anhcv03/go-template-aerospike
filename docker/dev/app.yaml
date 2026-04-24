@@ -2,7 +2,7 @@ aerospike:
   host: "aerospike"
   port: 3000
   hosts: []
-  namespace: "track_manager"
+  namespace: "utm-qg"
   user: ""
   pass: ""
   connection_queue_size: 100
