@@ -1,0 +1,33 @@
+aerospike:
+  host: "aerospike"
+  port: 3000
+  hosts: []
+  namespace: "track_manager"
+  user: ""
+  pass: ""
+  connection_queue_size: 100
+  min_connections_per_node: 0
+  idle_timeout_ms: 0
+  connect_timeout_ms: 30000
+  tend_interval_ms: 1000
+  warm_up_connections: 10
+  use_services_alternate: false
+grpc:
+  host: "0.0.0.0"
+  port: 8081
+http:
+  host: "0.0.0.0"
+  port: 8080
+nats:
+  server: "nats://nats:4222"
+logger:
+  log_max_size_mb: 100
+  log_compress: false
+  log_localtime: true
+  log_max_backups: 10
+  log_max_age_day: 30
+  log_dir: "./logs"
+  log_rotate_daily: true
+tracks:
+  history_batch_size: 10000
+  history_batch_max_age: 500
