@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  aerospike:
+    image: aerospike:ce-8.1.1.1
+    container_name: utm-track-manager-aerospike
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "asinfo -v status | grep -q '^status=ok$'"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  nats:
+    image: nats:2.12-alpine
+    container_name: utm-track-manager-nats
+    command: ["-js"]
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8222/healthz | grep -q ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 5s
+
+  utm-track-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUILDER_IMAGE: golang:1.24.0-bookworm
+        TARGET_IMAGE: debian:bookworm-slim
+    container_name: utm-track-manager-dev
+    depends_on:
+      aerospike:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    working_dir: /utm-track-manager/bin
+    command: ["./bin"]
+    volumes:
+      - ./docker/dev/app.yaml:/utm-track-manager/bin/app.yaml:ro
+    ports:
+      - "8080:8080"
+      - "8081:8081"

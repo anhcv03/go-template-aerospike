@@ -1,9 +1,17 @@
-postgres:
+aerospike:
   host: "172.16.36.177"
-  port: 15432
-  name: "UTM-Track"
-  user: "admin"
-  pass: "123456a@"
+  port: 3000
+  hosts: []
+  namespace: "track_manager"
+  user: ""
+  pass: ""
+  connection_queue_size: 100
+  min_connections_per_node: 0
+  idle_timeout_ms: 0
+  connect_timeout_ms: 30000
+  tend_interval_ms: 1000
+  warm_up_connections: 10
+  use_services_alternate: false
 grpc:
   port: 8081
 http:

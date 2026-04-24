@@ -1,18 +1,17 @@
 package common
 
-import "gorm.io/gorm"
+import (
+	as "github.com/aerospike/aerospike-client-go/v8"
+	"fmt"
+)
 
-func ProbeReadiness(dbClient *gorm.DB) error {
-	db, err := dbClient.DB()
-	if err != nil {
-		return err
+func ProbeReadiness(dbClient *as.Client) error {
+	nodes := dbClient.GetNodes()
+	if len(nodes) == 0 {
+		return fmt.Errorf("aerospike cluster is empty")
 	}
 
-	err = db.Ping()
-
-	if err != nil {
-		return err
-	}
-	return nil
+	_, err := nodes[0].RequestInfo(as.NewInfoPolicy(), "build")
+	return err
 }
 
