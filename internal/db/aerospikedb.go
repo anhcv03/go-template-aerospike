@@ -139,19 +139,3 @@ func EnsureSecondaryIndex(client *as.Client, namespace, setName, indexName, binN
 
 	return <-task.OnComplete()
 }
-
-func EnsureSetIndex(client *as.Client, namespace, setName, indexName string) error {
-	task, err := client.CreateSetIndex(nil, namespace, setName, indexName)
-	if err != nil {
-		if err.Matches(astypes.INDEX_FOUND, astypes.UNSUPPORTED_FEATURE) {
-			return nil
-		}
-		return err
-	}
-
-	if task == nil {
-		return nil
-	}
-
-	return <-task.OnComplete()
-}
