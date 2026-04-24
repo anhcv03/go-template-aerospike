@@ -1,4 +1,4 @@
-ARG BUILDER_IMAGE=harbor.vht.vn/c4i/golang:1.24.0-bookworm
+ARG BUILDER_IMAGE=harbor.vht.vn/proxy-cache/golang:1.24.0-bookworm
 ARG TARGET_IMAGE=scratch
 
 FROM ${BUILDER_IMAGE} AS builder

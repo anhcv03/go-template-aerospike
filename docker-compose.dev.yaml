@@ -4,28 +4,24 @@ services:
   aerospike:
     image: aerospike:ce-8.1.1.1
     container_name: utm-track-manager-aerospike
+    ulimits:
+      nofile:
+        soft: 20000
+        hard: 20000
     ports:
       - "3000:3000"
     healthcheck:
-      test: ["CMD-SHELL", "asinfo -v status | grep -q '^status=ok$'"]
-      interval: 10s
-      timeout: 5s
-      retries: 12
-      start_period: 10s
+      test: ["CMD", "asinfo", "-v", "status"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   nats:
     image: nats:2.12-alpine
     container_name: utm-track-manager-nats
-    command: ["-js"]
     ports:
       - "4222:4222"
       - "8222:8222"
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8222/healthz | grep -q ok"]
-      interval: 10s
-      timeout: 5s
-      retries: 12
-      start_period: 5s
 
   utm-track-manager:
     build:
@@ -38,12 +34,8 @@ services:
     depends_on:
       aerospike:
         condition: service_healthy
-      nats:
-        condition: service_healthy
-    working_dir: /utm-track-manager/bin
-    command: ["./bin"]
-    volumes:
-      - ./docker/dev/app.yaml:/utm-track-manager/bin/app.yaml:ro
     ports:
       - "8080:8080"
       - "8081:8081"
+    volumes:
+      - ./docker/dev/app.yaml:/utm-track-manager/bin/app.yaml:ro
