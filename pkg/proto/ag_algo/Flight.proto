@@ -1,0 +1,51 @@
+syntax = "proto3";
+import "pkg/proto/ag_algo/FlightRoute.proto";
+import "pkg/proto/ag_algo/Airport.proto";
+import "pkg/proto/ag_algo/Turnpoint.proto";
+import "pkg/proto/ag_algo/AfAlert.proto";
+import "pkg/proto/ag_algo/InterceptionInfo.proto";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+enum FlightState {
+  PASSIVE = 0;
+  ACTIVE = 1;
+  DONE = 2;
+  CANCELLED = 3;
+  MANUAL = 4;
+  SUGGESTION = 5;
+  DIRECT_GUIDANCE = 7;
+}
+
+enum InterceptState {
+  INTERCEPT_STATE_NONE = 0;
+  SUGGESTION_FROM_AIRPORT = 1;
+  SUGGESTION_FROM_PATROL = 2;
+  EDIT_SUGGESTION_FROM_AIRPORT = 3;
+  EDIT_SUGGESTION_FROM_PATROL = 4;
+}
+
+message GRPCFlightList {
+  repeated GRPCFlight flights = 1; //
+}
+
+message GRPCFlight {
+  string id = 1; //
+  string code = 2; //
+  GRPCFlightRoute flightRoute = 3; //
+  repeated GRPCAirport reserveAirport = 4; //
+  FlightState flightState = 5; //
+  GRPCTurnpoint plannedTrack = 6; //
+  repeated GRPCAfAlert alerts = 7; //
+  double expectedStartTime = 10; //
+  double expectedEndTime = 11; //
+  double realStartTime = 12; //
+  int64 targetTrackId = 30; //
+  int32 targetTrackNumber = 31; //
+  int64 associatedTrackId = 35; //
+  int32 associatedTrackNumber = 36; //
+  GRPCInterceptionInfo interceptionInfo = 200; //
+  InterceptState interceptState = 201; //
+}

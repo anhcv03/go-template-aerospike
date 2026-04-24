@@ -1,0 +1,36 @@
+syntax = "proto3";
+import "pkg/proto/ag_algo/Point.proto";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+enum AreaForm {
+    AREA_FORM_UNKNOWN = 0;
+    AREA_FORM_CIRCLE = 1;
+    AREA_FORM_POLYGON = 2;
+}
+
+message GRPCArea {
+    string name = 1; //
+    AreaForm areaForm = 2; //
+    repeated GRPCGeodeticPosition points = 3; //
+    double radius = 4; //
+    double lowAltitude = 5; //
+    double highAltitude = 6; //
+    double expandSafeDistance = 7; //
+}
+
+message GRPCFlightArea {
+    string name = 1; //
+    AreaForm areaForm = 2; //
+    repeated GRPCGeodeticPosition points = 3; //
+    double radius = 4; //
+    int32 sequence = 5; //
+    double duration = 6; //
+    double fuelRate = 7; //
+    double safeAltitude = 8; //
+    GRPCGeodeticPosition entryPoint = 9; //
+    GRPCGeodeticPosition exitPoint = 10; //
+    double maxDuration = 11; //
+}

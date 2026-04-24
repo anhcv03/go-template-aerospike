@@ -1,0 +1,26 @@
+
+func (c *CustomTemplate) CustomFields() field.CustomFieldsBuilder {
+	rType := reflect.TypeOf(CustomTemplate{})
+	custom := field.NewCustom()
+	for i := 0; i < rType.NumField(); i++ {
+		field := rType.Field(i)
+		tag := field.Tag
+		auditTag := tag.Get("audit")
+		if auditTag == "createdAt" {
+			custom.SetCreateAt(field.Name)
+		}
+		if auditTag == "updatedAt" {
+			custom.SetUpdateAt(field.Name)
+		}
+		if auditTag == "ID" {
+			custom.SetId(field.Name)
+		}
+		if auditTag == "updatedBy" {
+			custom.SetUpdateBy(field.Name, AUDIT_USER)
+		}
+		if auditTag == "createdBy" {
+			custom.SetCreateBy(field.Name, AUDIT_USER)
+		}
+	}
+	return custom
+}

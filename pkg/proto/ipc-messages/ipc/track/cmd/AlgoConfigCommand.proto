@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package com.vht.bms.messages;
+
+option java_package = "com.vht.bms.messages.track.cmd";
+option java_outer_classname = "AlgoConfigCommandProto";
+option go_package = "./ipc";
+
+message AlgoConfig {
+    MaintainConfig maintain_config = 1;
+    repeated CorrelationConfig correlation_configs = 2;
+    GeneralCorrelationConfig general_correlation_config = 3;
+}
+
+message MaintainConfig {
+    optional double track_timeout = 1;   // Track will be deleted if it has no source in track_timeout interval.
+}
+
+message CorrelationConfig {
+    optional int32 target_type = 1;
+
+    // For new track only
+    optional double new_track_corr_radius = 2;
+    optional double new_track_decorr_radius = 3;
+    // For normal
+    optional double corr_radius = 4;
+    optional double decorr_radius = 5;
+    // For both
+    optional double max_speed_diff = 6;
+    optional double max_head_diff = 7;
+
+    // For new track only
+    // New track will correlate to system track if it reach nScore in nCycle. Default: (3 scores / 3 cycles).
+    optional double new_track_corr_score = 10;           // Default 3
+    optional double new_track_corr_cycle = 11;           // Default 3
+
+    // For normal track
+    // Two normal track will correlate to each other if their correlate score reach corr_score.
+    // A normal track will decorrelate a source if the decorrelate score reach decorr_score.
+    optional double corr_score = 20;                     // Default 10
+    optional double decorr_score = 21;                   // Default 5
+}
+
+message GeneralCorrelationConfig {
+    optional double no_auto_corr_interval = 1;
+    optional double no_auto_decorr_interval = 2;
+}
+
+message AlgoConfigCommand {
+    int32 command_type = 1;                     // Get=0, update=1
+    AlgoConfig algo_config = 2;
+}

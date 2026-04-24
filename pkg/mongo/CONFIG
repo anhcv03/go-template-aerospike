@@ -1,0 +1,2 @@
+M_URI=mongodb://172.21.55.77:27017/at-direct-command
+M_COLLECTION='direct_command'

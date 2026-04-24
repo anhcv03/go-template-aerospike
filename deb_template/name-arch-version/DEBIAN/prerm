@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+
+systemctl stop DEB_PACKAGE.service
+systemctl disable DEB_PACKAGE.service

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package search_options;
+
+option go_package = "pkg/pb";
+
+message SearchOptions{
+    repeated string Fields = 1;//`json:"fields,omitempty"`
+    map<string, StringList> Filter = 2;//`json:"filter,omitempty"`
+    map<string,int32> Page = 3;//`json:"page" validate:"required"`
+    repeated string Sorts = 4;//`json:"sort,omitempty"`
+}
+message StringList{
+    repeated string Str = 1;//
+}

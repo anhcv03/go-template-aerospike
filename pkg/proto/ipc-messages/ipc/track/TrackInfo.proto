@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package com.vht.bms.messages;
+
+option java_package = "com.vht.bms.messages.track";
+option java_outer_classname = "TrackInfoProto";
+option go_package = "./ipc";
+
+import "ipc/track/tag/TrackTag.proto";
+import "ipc/track/TrackInfoEnum.proto";
+
+message AircraftProbaType {
+    optional int32 type = 1;
+    optional double proba = 2;
+    optional int32 nType = 3;
+}
+
+message AircraftInfo {
+    optional string mode_3a = 1;		    // Mode 3/A of aircraft: a string of 4-digit
+    optional string mode_s = 2;		    // Mode S of aircraft: a string of 6 hex-code
+    optional AircraftType aircraft_type = 3;    // Refer to AircraftType in TrackInfoEnum.proto
+
+    // Number of aircraft in one formation:
+    // If aircraft in formation fly closely together, sensor with low resolution will see them as one target.
+    // That's why we need this field to identify the real number of aircraft in one target.
+    optional int32 aircraft_count = 4;
+
+    optional string special_label = 5;      // Aircraft of important flight (for example: flight of president), often be assigned a label so all operators can recognized it quickly
+    optional string model = 6;              // eg: DJI model
+    optional string mode_serial = 7;        // serial cua uav, unique
+    optional AircraftProbaType type1 = 8;               // phan biet canh quat, canh bang
+    optional AircraftProbaType type2 = 9;               // phan biet loai tuong duong
+}
+
+message TrackInfo {
+    optional string name = 1;
+    optional string call_sign = 2;
+    optional AircraftFriendFoeState friend_foe_state = 4;
+
+    optional HeightSourceType height_source_type = 9;// Refer to HeightSourceType in TrackInfoEnum.proto
+    optional AircraftInfo aircraft_info = 15;
+
+    // Additional information of other branchs (AD, AF, NIC, NRC...) will be stored in here.
+    // For example: NRC track info will be defined in NavalRadarTrackTag.proto
+    //repeated TrackTag tags = 30;
+
+    // Additional info for TN24 military drill
+    optional int32 track_quality = 40;
+    //optional double start_radiation_freq = 41;
+    //optional double end_radiation_freq = 42;
+
+    //todo dinh nghia
+    // Enum value
+    // 0 = UNKNOWN;
+    // 1 = NORMAL
+    // 2 = LOST_CONTROL; 3 = LOST_ALTITUDE; 4 = LOST_CONTROL_AND_ALTITUDE;
+    optional int32 maneuver_status = 43;
+}

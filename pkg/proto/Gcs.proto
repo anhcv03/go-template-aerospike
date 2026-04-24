@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "pkg/pb";
+import "pkg/proto/SearchOptions.proto";
+import "pkg/proto/PatchOptions.proto";
+
+
+message GCS {
+    string ID = 1;//`json:"id,omitempty" bson:"_id"`
+    string GcsAddress = 2;//`json:"gcs_address,omitempty" bson:"gcs_address"`
+    string ProviderID = 3;//`json:"provider_id,omitempty" bson:"provider_id"`
+    string Status = 4;//`json:"status,omitempty" bson:"status"`
+    repeated double  Position = 5;//`json:"position,omitempty" bson:"position"`
+    uint64 CreatedAt = 55;//`json:"created_at,omitempty" bson:"created_at"  audit:"createdAt"`
+    uint64 UpdatedAt = 56;//`json:"updated_at,omitempty" bson:"updated_at"  audit:"updatedAt"`
+    string CreatedBy = 57;//`json:"created_by,omitempty" bson:"created_by"`
+    string UpdatedBy = 58;//`json:"updated_by,omitempty" bson:"updated_by"`
+}
+
+
+service GCSService {
+    rpc create (GCS) returns (GCS);
+    rpc search (search_options.SearchOptions) returns (SearchGCSResponse);
+    rpc patch (patch_options.PatchOptions) returns (patch_options.PatchResponse);
+}
+
+message SearchGCSResponse {
+    repeated GCS GCSs = 1;//
+    int32 TotalCount =2;//
+}

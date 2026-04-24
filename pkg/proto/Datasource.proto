@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package datasouce;
+
+option go_package = "pkg/pb";
+import "pkg/proto/SearchOptions.proto";
+import "pkg/proto/PatchOptions.proto";
+
+enum AT_DATASOURCE_CONNECTION_TYPE {
+    ADTC_UNKNOWN = 0;
+    ADTC_GCS = 1;
+    ADTC_BV5 = 2;
+    ADTC_RMID = 3;
+}
+
+message Datasource {
+    string ID = 1;//`json:"id,omitempty" bson:"_id"`
+    string  DataSourceAdd = 2;//`json:"datasource_add,omitempty" bson:"datasource_add"`
+    string  DatasourcePort = 3;//`json:"datasource_port,omitempty" bson:"datasource_port"`
+    AT_DATASOURCE_CONNECTION_TYPE ConnectionType = 4;//`json:"connection_type,omitempty" bson:"connection_type"`
+    repeated double  Position= 5;//`json:"position,omitempty" bson:"position"`
+    double Coverage  = 6;//`json:"coverage,omitempty" bson:"coverage"`
+    uint64 CreatedAt = 50;//`json:"created_at,omitempty" bson:"created_at"  audit:"createdAt"`
+    uint64 UpdatedAt = 51;//`json:"updated_at,omitempty" bson:"updated_at"  audit:"updatedAt"`
+    string CreatedBy = 52;//`json:"created_by,omitempty" bson:"created_by"`
+    string UpdatedBy = 53;//`json:"updated_by,omitempty" bson:"updated_by"`
+}
+
+
+service DatasourceService {
+    rpc create (Datasource) returns (Datasource);
+    rpc search (search_options.SearchOptions) returns (SearchDatasourceResponse);
+    rpc patch (patch_options.PatchOptions) returns (patch_options.PatchResponse);
+}
+
+message SearchDatasourceResponse {
+    repeated Datasource Datasources = 1;//
+    int32 TotalCount =2;//
+}

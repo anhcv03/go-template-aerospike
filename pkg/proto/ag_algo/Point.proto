@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+message GRPCGeodeticPosition {
+	double longitude = 1; //
+	double latitude = 2; //
+	double altitude = 3; //
+}
+
+message GRPCVelocity {
+	double speed = 1; //
+	double heading = 2; //
+}
+
+message GRPCGeodeticState {
+	GRPCGeodeticPosition position = 1; //
+	GRPCVelocity velocity = 2; //
+}
+
+message GRPCPolarPosition {
+    GRPCGeodeticPosition center = 1; //
+	double range = 2; //
+	double azimuth = 3; //
+	double altitude = 4; //
+}
+
+message GRPCPoint {
+    string id = 1; //
+    int32 sequence = 2; //
+    string name = 3; //
+    GRPCGeodeticState geodeticState = 4; //
+}
+
+message GRPCPointList {
+    repeated GRPCGeodeticPosition points = 1;//
+}
+
+message GRPCPolygon {
+    string id  = 1;//
+    GRPCPointList shell = 2;//
+    repeated GRPCPointList holes = 3;//
+    double radius = 4;//
+}

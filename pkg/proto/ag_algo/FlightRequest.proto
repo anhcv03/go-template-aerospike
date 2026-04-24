@@ -1,0 +1,29 @@
+syntax = "proto3";
+import "pkg/proto/ag_algo/Turnpoint.proto";
+import "pkg/proto/ag_algo/Waypoint.proto";
+import "pkg/proto/ag_algo/Flight.proto";
+import "pkg/proto/ag_algo/Point.proto";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+message PlannedTrackResponse {
+  GRPCTurnpoint plannedTrack = 1; //
+  repeated GRPCTurnpoint equalDurationPoints = 2; //
+  repeated GRPCWaypoint passedRoute = 3; //
+  repeated GRPCWaypoint equalDurationRoute = 4; //
+}
+
+message PlannedTrackRequest {
+  GRPCFlight flight = 1;//
+  double timeNow = 2;//
+}
+
+message GuidedTrackRequest {
+  GRPCGeodeticState position = 1;//
+  GRPCTurnDirection turnDirection = 2;//
+  double bankAngle = 3;//
+  double duration = 4;//
+  double nextHeading = 5;//
+}

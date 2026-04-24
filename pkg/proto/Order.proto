@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+package order;
+
+option go_package = "pkg/pb";
+import "pkg/proto/SearchOptions.proto";
+import "pkg/proto/PatchOptions.proto";
+
+enum AT_ORDER_STATUS {
+    AOS_UNKNOWN = 0;
+    AOS_PENDING = 1;
+    AOS_IN_DELIVERY = 2;
+    AOS_DELIVERED = 3;
+    AOS_CANCELED = 4;
+    AOS_CONFIRM = 5;
+}
+
+enum AT_ORDER_SIZE {
+    AOSZ_UNKNOWN = 0;
+    AOSZ_SMALL = 1;
+    AOSZ_MEDIUM = 2;
+    AOSZ_LARGE = 3;
+    AOSZ_OVERSIZE = 4;
+}
+
+enum AT_ORDER_PRORITY {
+    AOP_UKNOWN = 0;
+    AOP_NORMAL = 1;
+    AOP_HIGH   = 2;
+}
+
+
+enum AT_SEGMENT_TYPE {
+    AST_UKNOWN = 0;
+    AST_PRE_DELIVERY_ROUTE = 1;
+    AST_IN_DELIVERY_ROUTE = 2;
+    AST_RETURN_FLIGHT_ROUTE = 3;
+}
+
+
+
+enum AT_SEGMENT_STATUS {
+    ASS_UKNOWN = 0;
+    ASS_UNFINISHED = 1;
+    ASS_FINISHED = 2;
+
+}
+
+
+
+message Order {
+    string  ID = 1;//`json:"id,omitempty" bson:"_id,omitempty"`
+    string  Source = 2;//`json:"source,omitempty" bson:"source"`
+    string  Dest = 3;//`json:"dest,omitempty" bson:"dest"`
+    AT_ORDER_STATUS  Status = 4;//`json:"order_status,omitempty" bson:"order_status"`
+    string  DroneID = 5;//`json:"drone_id,omitempty" bson:"drone_id"`
+    string  GcsID = 6;//`json:"gcs_id,omitempty" bson:"gcs_id"`
+    // repeated spatial_attribute.GeodeticPositionWithTime FlightRoute  = 7;//`json:"flight_route,omitempty" bson:"flight_route"`
+    repeated Segments Segments = 7;//`json:"segments,omitempty" bson:"segments"`
+    string UserCreateID = 8;//`json:"user_create_id,omitempty" bson:"user_create_id"`
+    uint64 Weight = 9;//`json:"weight,omitempty" bson:"weight"`
+    AT_ORDER_SIZE Size = 10;//`json:"size,omitempty" bson:"size"`
+    AT_ORDER_PRORITY Priority = 11;//`json:"priority,omitempty" bson:"priority"`
+    TimeWindow TimeWindow = 12;//`json:"time_window,omitempty" bson:"time_window"`
+    string CorridorID = 13;//`json:"corridor_id,omitempty" bson:"corridor_id"`
+    uint64 ETA = 14;//`json:"eta,omitempty" bson:"eta"`
+    uint64 CreatedAt = 52;//`json:"created_at,omitempty" bson:"created_at"  audit:"createdAt"`
+    uint64 UpdatedAt = 53;//`json:"updated_at,omitempty" bson:"updated_at"  audit:"updatedAt"`
+    string CreatedBy = 54;//`json:"created_by,omitempty" bson:"created_by"`
+    string UpdatedBy = 55;//`json:"updated_by,omitempty" bson:"updated_by"`
+    bool IsDemo = 56;//`json:"is_demo,omitempty" bson:"is_demo"`
+}
+
+
+service OrderService {
+    rpc create (Order) returns (Order);
+    rpc search (search_options.SearchOptions) returns (SearchOrderResponse);
+    rpc patch (patch_options.PatchOptions) returns (patch_options.PatchResponse);
+    rpc update (Order) returns (Order);
+}
+
+message SearchOrderResponse {
+    repeated Order Order = 1;//
+    int32 TotalCount =2;//
+}
+
+message TimeWindow {
+    int64  StartTime = 1;//`json:"start_time,omitempty" bson:"start_time,omitempty"`
+    int64  EndTime = 2;//`json:"end_time,omitempty" bson:"end_time"` 
+}
+
+
+message Segments {
+    int32  SegmentIndex = 1;//`json:"segment_index,omitempty" bson:"segment_index,omitempty"`
+    string  Source = 2;//`json:"source,omitempty" bson:"source"`
+    string  Dest = 3;//`json:"dest,omitempty" bson:"dest"`
+    string  FlightLaneID = 4;//`json:"flight_lane_id,omitempty" bson:"flight_lane_id"`
+    AT_SEGMENT_STATUS  SegmentStatus = 5;//`json:"segment_status,omitempty" bson:"segment_status"`
+    AT_SEGMENT_TYPE SegmentType = 6;//`json:"segment_type,omitempty" bson:"segment_type"`
+    string  DroneID = 7;//`json:"drone_id,omitempty" bson:"drone_id"`
+}
+

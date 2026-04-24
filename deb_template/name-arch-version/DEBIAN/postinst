@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e
+
+systemctl daemon-reload
+systemctl enable DEB_PACKAGE.service
+systemctl start DEB_PACKAGE.service

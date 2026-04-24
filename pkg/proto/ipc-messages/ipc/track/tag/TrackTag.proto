@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package com.vht.bms.messages;
+
+option java_package = "com.vht.bms.messages.track.tag";
+option java_outer_classname = "TrackTagProto";
+option go_package = "./ipc";
+
+import "ipc/track/tag/AfadTrackTag.proto";
+import "ipc/track/tag/EWTrackTag.proto";
+
+message TrackTag {
+	oneof TrackTag {
+		AFADTrackTag afad_track_tag = 1;
+		EWTrackTag ew_track_tag = 2;
+	}
+}
+

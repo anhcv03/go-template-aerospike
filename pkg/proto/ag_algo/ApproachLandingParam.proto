@@ -1,0 +1,103 @@
+syntax = "proto3";
+import "pkg/proto/ag_algo/Beacon.proto";
+import "pkg/proto/ag_algo/Turnpoint.proto";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+enum GRPCInstrumentApproachType {
+    TO_AIRBASE = 0;
+    TO_RUNWAY_ALIGNMENT_POINT = 1;//xuyen xuong
+    APPROACH_AUTO = 2;//calculate the most suitable approach mode
+    APPROACH_0 = 3;//goc kep
+    APPROACH_90 = 4;
+    APPROACH_180 = 5;//2x180
+    APPROACH_270 = 6;
+    BOX = 7;//hinh hop
+    CIRCUIT = 8;//vong kin
+    CIRCUIT_V1 = 9;//vong kin, approach V12
+    CIRCUIT_V2P = 10;//vong kin, approach V2Plus - diem ngang dai
+    CIRCUIT_V3 = 11;//vong kin, approach V3
+    CIRCUIT_V4 = 12;//vong kin, approach V4
+}
+
+enum V3Type {
+    BEACON_TIME = 0;//T ngang dai
+    ANGLE_TO_BEACON = 1;//KYP
+    ANGLE_TO_V4 = 2;//goc V3-V4
+    BIG_CIRCLE_BEACON_TIME = 3;//T ngang dai cho Vong kin lon
+    BIG_CIRCLE_ANGLE_TO_BEACON = 4;//KYP cho Vong kin lon
+}
+
+message GRPCGlideSlopeInfo {
+    double altitude = 1; //
+    double indicatedAirspeed = 2; //
+    double verticalSpeed = 3; //
+}
+
+message GRPCCircuitLandingPointParameter {
+    double turnSpeed = 1; //
+    double turnAltitude = 2; //
+    double cruiseSpeed = 3; //
+    double cruiseAltitude = 4; //
+    double bankAngle = 5; //
+}
+
+message GRPCApproachLandingParam {
+    string aircraftType = 1; //
+    repeated GRPCGlideSlopeInfo glideSlopeInfos = 2; //
+    double temperature = 3; //
+    GRPCInstrumentApproachType approachType = 4; //
+    GRPCInstrumentApproachType usedApproachType = 5; //
+    double xxLongRangeBeaconDistance = 8; //
+    GRPCBeacon xxLongRangeBeacon = 9; //
+    GRPCBeacon xxBeacon = 10; //
+    double xxSpeed = 11; //
+    double xxAltitude = 12; //
+    double xxBankAngle = 13; //
+    double xxCruiseDuration1 = 14; //
+    double xxAfterTurnV3DescendAltitude = 15; //
+    double xmLongRangeBeaconDistance = 18; //
+    GRPCBeacon xmLongRangeBeacon = 19; //
+    GRPCBeacon xmBeacon = 20; //
+    double xmSpeed = 21; //
+    double xmAltitude = 22; //
+    double xmBankAngle = 23; //
+    double xmCruiseDuration1 = 24; //
+    double xmBeaconBlindRadius = 25; //
+    double xmV1CruiseDuration = 26; //
+    GRPCTurnDirection xmTurnDirection = 27; //
+    double xmAfterTurnV3DescendAltitude = 28; //
+    double xmV3TurnSpeed = 29; //
+    double approachDistance = 35; //
+    double longRangeBeaconDistance = 36; //
+    GRPCBeacon longRangeBeacon = 37; //
+    GRPCBeacon beacon = 38; //
+    GRPCTurnDirection turnDirection = 39; //
+    V3Type v3Type = 40; //
+    double v3DurationFromBeaconProjection = 41; //
+    double v3AngleToBeacon = 42; //
+    double v3AngleToV4 = 43; //
+    double bigCircleV3DurationFromBeacon = 44; //
+    double bigCircleV3AngleToBeacon = 45; //
+    double bigCircleToV2CruiseDuration = 46; //
+    GRPCCircuitLandingPointParameter v1 = 50; //
+    GRPCCircuitLandingPointParameter v2 = 51; //
+    GRPCCircuitLandingPointParameter v3 = 52; //
+    GRPCCircuitLandingPointParameter v4 = 53; //
+    double boxLongRangeBeaconDistance = 55; //
+    GRPCBeacon boxLongRangeBeacon = 56; //
+    GRPCBeacon boxBeacon = 57; //
+    GRPCTurnDirection boxTurnDirection = 58; //
+    double boxBeaconBlindRadius = 59; //
+    double boxV1CruiseDuration = 60; //
+    double boxToV2CruiseDuration = 61; //
+    double boxDurationFromBeacon = 62; //
+    int32 boxMode = 63; //
+    double boxDistanceV1 = 64; //
+    GRPCCircuitLandingPointParameter boxV1 = 70; //
+    GRPCCircuitLandingPointParameter boxV2 = 71; //
+    GRPCCircuitLandingPointParameter boxV3 = 72; //
+    GRPCCircuitLandingPointParameter boxV4 = 73; //
+}

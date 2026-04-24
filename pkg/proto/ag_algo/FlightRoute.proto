@@ -1,0 +1,135 @@
+syntax = "proto3";
+import "pkg/proto/ag_algo/Waypoint.proto";
+import "pkg/proto/ag_algo/Area.proto";
+import "pkg/proto/ag_algo/Airport.proto";
+import "pkg/proto/ag_algo/AfErrorCode.proto";
+import "pkg/proto/ag_algo/ApproachLandingParam.proto";
+import "pkg/proto/ag_algo/Point.proto";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+enum GRPCFlightRouteType {
+    GENERIC = 0;//flight route, average fuel consumption
+    TACTICAL_RADIUS_GENERIC = 1;//Tactical Radius
+    INTERCEPT_GENERIC = 2;//intercept route
+    //SU22M4
+    ROUTE_SU22M4 = 3;
+    TACTICAL_RADIUS_SU22M4 =4;
+    INTERCEPT_SU22M4 = 5;
+    //SU30MK2
+    ROUTE_SU30MK2 = 6;
+    TACTICAL_RADIUS_SU30MK2 = 7;
+    INTERCEPT_SU30MK2 = 8;
+    //SU27
+    ROUTE_SU27 = 9;
+    TACTICAL_RADIUS_SU27 =10;
+    INTERCEPT_SU27 = 11;
+
+    FLIGHT_ROUTE_TYPE_UNKNOWN = 12;
+    AAA_TRAINING = 13;
+    DETAIL_SEGMENT = 14;//change altitude/speed in segment (not in turn arc)
+}
+
+enum GRPCFuelUnitType {
+    KG_PER_KM = 0;//fuel consumption unit: kg per km
+    KG_PER_MIN = 1;//fuel consumption unit: kg per minute
+    LITER_PER_MIN = 2;//fuel consumption unit: liter per minute
+}
+
+enum GRPCAircraftTypeFeatureCode {
+    FIGHTER_BOMBERS = 0;
+    FIGHTER_AIRCRAFT = 1;
+    HELICOPTER = 2;
+    MILITARY_TRANSPORT_AIRCRAFT = 3;
+    UNKNOWN_AIRCRAFT_TYPE_FEATURE_CODE = 4;
+}
+
+message GRPCFlightRouteTDFInfo {
+    double totalDuration = 1; //
+    double fuelFull = 2; //
+    double fuelLeft = 3; //
+    double fuelCombat = 4; //
+    double qGround = 5; //
+    double fuelTakeOff = 6; //
+    double fuelLanding = 7; //
+    double fuelTechnicalReserve = 8; //
+    double fuelTeamReserve = 9; //
+    double fuelGuidanceReserve = 10; //
+    double fuelHolding = 11; //
+    double holdingTime = 12; //
+    double fuelAlternativeAirport = 13; //
+    double fuelSetupFormation = 14; //
+    double fuelDissolveFormation = 15; //
+    double durationTakeOff = 16; //
+    double durationStartEngine = 17; //
+    double takeOffDistance = 18; //
+    double landingDistance = 19; //
+    double takeOffAltitude = 20; //
+    double temperature = 21; //
+    double equalDuration = 22; //
+    int32 equalDurationMaxPoint = 23; //
+    double takeOffSpeed = 24; //
+    double fuelDensity = 50; //
+    double bodyFuel = 51; //
+    double aircraftFullWeight = 52; //
+    double aircraftFullDrag = 53; //
+    double underWingFuel = 56; //
+    double underBodyFuel = 57; //
+    double fuelGuarantee = 58; //
+}
+
+message GRPCFlightRoute {
+    string id = 1; //
+    string name = 2; //
+    GRPCFlightRouteType routeType = 3; //
+    GRPCFuelUnitType fuelUnitType = 4; //
+    repeated GRPCAircraftTypeFeatureCode aircraftTypeFeatureCodes = 5; //
+    repeated GRPCWaypoint waypoints = 6; //
+    repeated GRPCFlightArea flightAreas = 7; //
+    GRPCAirport departAirport = 8; //
+    GRPCAirport destAirport = 9; //
+    GRPCFlightRouteTDFInfo tdfInfo = 10; //
+    GRPCErrorInfo errorInfo = 11; //
+    repeated GRPCErrorInfo warningInfo = 12; //
+    GRPCApproachLandingParam approachLandingParam = 15; //
+    repeated GRPCArea obstacleAreas = 16; //
+    repeated GRPCWaypoint landingCircuitWaypoints = 17; //
+    GRPCRct rct = 100; //
+    repeated GRPCDisplayDetailFuelTableSegment displaySegments = 101; //
+    repeated GRPCDisplayDetailFuelTableTurnpoint displayTurnpoints = 102; //
+    GRPCGeodeticPosition meetPoint = 200; //
+    double meetPointTime = 201; //
+}
+
+message GRPCRct {
+//    double rctFuelTeamReserve = 1; //
+//    double rctFuelGuidanceReserve = 2; //
+    double rctR = 3; //
+    double rctR1 = 4; //
+    double rctR2 = 5; //
+//    double rctFuelGuarantee = 8; //
+}
+
+message GRPCDisplayDetailFuelTableSegment {
+    double length = 1; //
+    double duration = 2; //
+    double indicatedAirSpeed = 3; //
+    double trueAirSpeed = 4; //
+    double machNumber = 5; //
+    double fuelRateKgPerKm = 6; //
+    double fuelRateKgPerMin = 7; //
+    double fuelConsumption = 8; //
+}
+
+message GRPCDisplayDetailFuelTableTurnpoint {
+    string turnpointName = 1; //
+    double altitude = 2; //
+    double totalLength = 3; //
+    double totalDuration = 4; //
+    double totalFuelConsumption = 5; //
+    double fuelLeft = 6; //
+    double drag = 7; //
+    double weight = 8; //
+}

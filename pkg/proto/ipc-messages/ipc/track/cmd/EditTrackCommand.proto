@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package com.vht.bms.messages;
+
+option java_package = "com.vht.bms.messages.track.cmd";
+option java_outer_classname = "EditTrackCommandProto";
+option go_package = "./ipc";
+
+import "ipc/track/TrackMessage.proto";
+
+message EditTrackCommand {
+    repeated TrackMessage editing_tracks = 1;
+}

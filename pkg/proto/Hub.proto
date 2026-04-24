@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package hub;
+
+option go_package = "pkg/pb";
+import "pkg/proto/SearchOptions.proto";
+import "pkg/proto/PatchOptions.proto";
+import "pkg/proto/User.proto";
+
+message Hub {
+    string ID = 1;//`json:"id,omitempty" bson:"_id"`
+    repeated double  Position = 2;//`json:"position,omitempty" bson:"position"`
+    repeated user.User Users = 3;//`json:"users,omitempty" bson:"users"`
+    string Name = 4;//`json:"name,omitempty" bson:"name"`
+    string Description = 5;//`json:"description,omitempty" bson:"description"`
+    repeated Hub Lockers = 6;//`json:"lockers,omitempty" bson:"lockers"`
+    uint64 CreatedAt = 56;//`json:"created_at,omitempty" bson:"created_at"  audit:"createdAt"`
+    uint64 UpdatedAt = 57;//`json:"updated_at,omitempty" bson:"updated_at"  audit:"updatedAt"`
+    string CreatedBy = 58;//`json:"created_by,omitempty" bson:"created_by"`
+    string UpdatedBy = 59;//`json:"updated_by,omitempty" bson:"updated_by"`
+}
+
+
+service HubService {
+    rpc create (Hub) returns (Hub);
+    rpc search (search_options.SearchOptions) returns (SearchHubResponse);
+    rpc patch (patch_options.PatchOptions) returns (patch_options.PatchResponse);
+}
+
+message SearchHubResponse {
+    repeated Hub Hubs = 1;//
+    int32 TotalCount =2;//
+}

@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+// FLIGHT PARAMS
+enum CalculateOrder {
+  CalcOrderAltitudeFirst = 0;
+  CalcOrderSpeedFirst = 1;
+}
+enum AfterTurnMode {
+  ManualCustomize = 0;
+  MaxDistance = 1;
+  MaxDistanceCeiling = 2;
+  MaxDuration = 3;
+  MaxDurationCeiling = 4;
+  MaxSpeed = 5;
+  MaxAltitude = 6;
+}
+
+enum EngineMode {
+  EngineModeMaximum = 0;
+  EngineModeMinimumAfterBurner = 1;
+  EngineModeFullAfterBurner = 2;
+  EngineModeNonAfterBurner = 3;
+}
+
+enum GRPCEngineModeType {
+  EngineModeType_Combat = 0; //che do chien dau
+  EngineModeType_Training = 1; //che do huan luyen
+}
+
+enum DescendSpeed {
+  DescendSpeed_500 = 0;
+  DescendSpeed_450 = 1;
+}
+
+enum WingAngle {
+  WingAngle_45_Degree = 0;
+  WingAngle_63_Degree = 1;
+  WingAngle_30_Degree = 2;
+}
+
+message GRPCAircraftFlightParameters {
+  CalculateOrder calculateOrder = 1; //
+  AfterTurnMode afterTurnMode = 2; //
+  EngineMode turnEngineMode = 3; //
+  EngineMode climbEngineMode = 4; //
+  EngineMode accelerateEngineMode = 5; //
+  EngineMode cruiseEngineMode = 6; //
+  DescendSpeed descendSpeed = 10; //
+  GRPCEngineModeType engineModeType = 15; //
+  WingAngle wingAngle = 20; //
+}

@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+message GRPCSystemParameter {
+  string id                 = 1; //
+  string code               = 2; //
+  string name               = 3; //
+  string typeCode           = 4; //
+  string typeName           = 5; //
+  string unitOfMeasurement  = 6; //
+  string value              = 7; //
+  string note               = 8; //
+  string subcategoryId      = 9; //
+  string subcategoryCode    = 10; //
+  string subcategoryName    = 11; //
+  string categoryId         = 12; //
+  string categoryCode       = 13; //
+  string categoryName       = 14; //
+}

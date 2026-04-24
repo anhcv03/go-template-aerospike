@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package com.vht.bms.messages;
+
+option java_package = "com.vht.bms.messages.track";
+option java_outer_classname = "TrackInfoEnumProto";
+option go_package = "./ipc";
+
+//--------------------------------
+// TRACK GENERAL INFORMATION
+//--------------------------------
+enum FriendFoeState {
+	FRIEND_FOE_STATE_UNKNOWN = 0;
+	FRIEND_FOE_STATE_ALLY = 1;
+	FRIEND_FOE_STATE_NEUTRAL = 2;
+	FRIEND_FOE_STATE_ENEMY = 3;
+	FRIEND_FOE_STATE_THREAT = 4;
+	FRIEND_FOE_STATE_OWN_FORCE = 5;
+}
+
+enum TrackingMode {
+	TRACKING_MODE_AUTOMATIC = 0;
+	TRACKING_MODE_SEMI_AUTO = 1;
+	TRACKING_MODE_MANUAL = 2;
+}
+
+enum ActiveMode {
+	ACTIVE_MODE_TENTATIVE = 0;		// Tentative target has big probability as a false target
+	ACTIVE_MODE_POTENTIAL = 1;		// Potential target has big probability as a true target
+	ACTIVE_MODE_ACTIVE = 2;       // Active target is considered as true target
+	ACTIVE_MODE_INACTIVE = 3;			// Inactive target is no longer tracking by any radar (has no source)
+}
+
+//done
+enum SourceType {
+    SOURCE_TYPE_UNKNOWN = 0;
+	SOURCE_TYPE_RADAR = 1;
+	SOURCE_TYPE_EW = 2;//electronic warfare - TCDT
+	SOURCE_TYPE_CAM = 3;//camera - QDT
+
+
+	// Other external source
+	SOURCE_TYPE_EXTERNAL_VQ = 100;
+}
+
+enum HeightSourceType {
+	HEIGHT_SOURCE_TYPE_UNKNOWN = 0;
+	HEIGHT_SOURCE_TYPE_MILITARY = 1;
+	HEIGHT_SOURCE_TYPE_CIVIL = 2;
+	HEIGHT_SOURCE_TYPE_MANUAL = 3;
+}
+
+//--------------------------------
+// AIR TARGET INFORMATION
+//--------------------------------
+// Note: All aircraft enumeration order here are corresponded with the its order in VQ project
+enum AircraftFriendFoeState {
+	AIR_FRIEND_FOE_STATE_UNKNOWN = 0;
+	AIR_FRIEND_FOE_STATE_ALLY = 1;
+	AIR_FRIEND_FOE_STATE_DOMESTIC = 2;
+	AIR_FRIEND_FOE_STATE_HOSTILE = 3;
+	AIR_FRIEND_FOE_STATE_INTERNATIONAL = 4;
+	AIR_FRIEND_FOE_STATE_OVERFLIGHT = 5;
+};
+
+enum AircraftType {
+	AIRCRAFT_TYPE_UNKNOWN = 0;
+	AIRCRAFT_TYPE_BOMBER = 1;
+	AIRCRAFT_TYPE_HELICOPTER = 2;
+	AIRCRAFT_TYPE_TRANSPORT = 3;
+	AIRCRAFT_TYPE_REFUEL = 4;
+	AIRCRAFT_TYPE_RECONNAISSANCE = 5;
+	AIRCRAFT_TYPE_ECM = 6;
+	AIRCRAFT_TYPE_AWACS = 7;
+	AIRCRAFT_TYPE_TRAINING = 8;
+	AIRCRAFT_TYPE_STRATEGIC_BOMBER = 9;
+	AIRCRAFT_TYPE_CRUISE_MISSILE = 10;
+	AIRCRAFT_TYPE_BALLISTIC_MISSILE = 11;
+	AIRCRAFT_TYPE_UAV = 12;//Neu chua xac dinh canh quat, canh bang
+	AIRCRAFT_TYPE_AEROSTAT = 13;
+	AIRCRAFT_TYPE_CIVIL = 14;
+	AIRCRAFT_TYPE_FIGHTER = 15;
+
+	//For VQC-PK
+	AIRCRAFT_TYPE_DRONE = 16;//canh quat
+	AIRCRAFT_TYPE_FIXED_WING = 17;//canh bang
+	AIRCRAFT_TYPE_BOMB = 18;
+};

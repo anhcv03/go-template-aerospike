@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+package event_listener;
+
+option go_package = "pkg/pb";
+
+import "pkg/proto/Order.proto";
+import "pkg/proto/Drone.proto";
+import "pkg/proto/SpatialAttribute.proto";
+import "pkg/proto/FlightCorridor.proto";
+
+
+
+message EventRoutingKey {
+    string RKService = 1;//`json:"rk_service" bson:"rk_service"`
+    string RKResource = 2;//`json:"rk_resource" bson:"rk_resource"`
+    string RKAction = 3;//`json:"rk_action" bson:"rk_action"`
+    string RKEventAPI = 4;//`json:"rk_event_api" bson:"rk_event_api"`
+    string RKID = 5;//`json:"rk_id" bson:"rk_id"`
+}
+
+message SocketEvent {
+    string ID = 1;//`json:"rk_service" bson:"rk_service"`
+    string Action = 2;//`json:"rk_resource" bson:"rk_resource"`
+    string Meta = 3;//`json:"rk_action" bson:"rk_action"`
+    string Data = 4;//`json:"rk_event_api" bson:"rk_event_api"`
+    string IssuerID = 5;//`json:"rk_event_api" bson:"rk_event_api"`
+    string EventName = 6;//`json:"resource_name" bson:"resource_name"`
+}
+
+message AlgoRequest {
+    repeated order.Order Orders = 1;//`json:"orders_list" bson:"orders_list"`
+	repeated drone.Drone Drones = 2;//`json:"drones_list" bson:"drones_list"`
+    // repeated drone.FlightCorridor Corridor = 3;//`json:"flight_corridor_list" bson:"flight_corridor_list"`
+}
+
+message AlgoOptimizeResponse {
+    repeated order.Order Orders =1;//`json:"orders_list" bson:"orders_list"`
+}
+
+service AlgoMappingService {
+    rpc create (AlgoRequest) returns (AlgoOptimizeResponse);
+}
+
+
+
+message DroneWithCurrentFlightLane {
+    drone.ObjectTrack Drone = 1;//`json:"drone,omitempty" bson:"drone,omitempty"`
+    drone.FlightLane CurrentFlightLane = 2;//`json:"current_flight_lane,omitempty" bson:"current_flight_lane,omitempty"`
+}
+
+message UFOMessage {
+     int32 TrackID = 1;//`json:"track_id" bson:"track_id"`
+     spatial_attribute.GeodeticPosition UFOPosition = 2;//`json:"ufo_position" bson:"ufo_position"`
+     spatial_attribute.PolarVelocity Velocity = 3;//`json:"ufo_velocity" bson:"ufo_velocity"`
+
+}
+
+
+message ActiveDrone {
+     string DroneID = 1;//`json:"drone_id" bson:"drone_id"`
+     string SegmentID =2 ;//`json:"segment_id" bson:"segment_id"`
+    //  spatial_attribute.CartesianVelocity NewVelocity = 2;//`json:"new_velocity" bson:"new_velocity"`
+
+}
+message ToDeliverDrone {
+     string DroneID = 1;//`json:"drone_id" bson:"drone_id"`
+     string FlightLaneID = 2;//`json:"flight_lane_id" bson:"flight_lane_id"`
+    //  double DelayTime = 3;//`json:"delay_time" bson:"delay_time"`
+
+}
+
+
+message AlertRequest {
+    repeated DroneWithCurrentFlightLane DroneWithCurrentFlightLane = 1;//`json:"drone_with_current_flight_lane,omitempty" bson:"drone_with_current_flight_lane,omitempty"`
+    repeated UFOMessage UFOList = 2;//`json:"ufo_list,omitempty" bson:"ufo_list,omitempty"`
+}
+
+message AlertResponse {
+    repeated ActiveDrone ActiveDrone = 1;//`json:"active_drone,omitempty" bson:"active_drone,omitempty"`
+    repeated ToDeliverDrone ToDeliverDrone = 2;//`json:"to_deliver_drone,omitempty" bson:"to_deliver_drone,omitempty"`
+}
+
+service AlertService {
+    rpc create (AlertRequest) returns (AlertResponse);
+}
+

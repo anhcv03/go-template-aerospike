@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package com.vht.bms.messages;
+
+import "PositionAndVelocity.proto";
+import "ipc/track/TrackInfo.proto";
+import "ipc/track/TrackInfoEnum.proto";
+
+option java_package = "com.vht.bms.messages.track";
+option java_outer_classname = "TrackMessageProto";
+option go_package = "./ipc";
+
+message SourceInfo {
+    optional string id = 1;
+    optional SourceType source_type = 2;// Refer to SourceType in TrackInfoEnum.proto
+}
+
+message TrackMessage {
+    optional int32 id = 1;
+    SourceInfo source_info = 2;
+
+    TrackInfo track_info = 4;
+
+    GeodeticPosition geodetic_position = 10;
+    PolarVelocity polar_velocity = 11;
+    PolarPosition polar_position = 12;
+
+    optional TrackingMode tracking_mode = 15; // Refer to TrackingMode in TrackInfoEnum.proto
+    optional ActiveMode active_mode = 16;// Refer to ActiveMode in TrackInfoEnum.proto
+
+    optional int64 created_timestamp = 20;// Timestamp when track is created
+    optional int64 last_updated_timestamp = 21;// Timestamp when track is updated by a source track
+    optional int64 timestamp = 22;// Timestamp when track's kinematic state (position + velocity) is updated (by a source track or by prediction)
+
+    repeated TrackMessage source_tracks = 30;
+
+    //Additional fields
+    optional bool no_delete_flag = 50;
+    optional bool jammed = 51;
+    optional bool suppressed = 52;
+    optional bool destroyed = 53;
+
+    repeated ManeuverWarning maneuver_warnings = 54;
+
+    optional bool confirmed = 55;
+    optional string trueId = 56;//target true id; use to calculate tracking and fusion coef in factory test
+    repeated float errors = 57;//covariance of coordinates
+    optional bool predictedValue = 58;//true -> coordinates are predicted values
+    /*
+
+    */
+    repeated double covarianceMatrix = 60;
+}
+
+message TrackMessages {
+    repeated TrackMessage track_message_list = 1;
+}
+
+message ManeuverWarning {
+    optional int32 type = 1; // 1 = SPEED; 2 = HEADING; 3 = ALTITUDE
+    optional double delta = 2;
+    optional double delta_percent = 3; // Value from 0 to 1, equal 0% to 100%
+    optional int64 timestamp = 4;     // Timestamp when the warning occur
+}
+
+message RemovedTrackEventMessage {
+    int32 removed_track_id = 1;
+    SourceInfo source_info = 3;
+    optional string uuid = 4;
+}
+
+message RemovedTracksEventMessage {
+    repeated int32 removed_track_id_list = 1;
+    SourceInfo source_info = 3;
+    repeated string uuid_list = 4;
+}
+
+message TrackStatisticsMessage {
+    repeated int32 all_id_list = 1;
+    int32 statistic_index = 2;
+    string source_id = 3;
+
+    int64 timestamp = 4;
+    repeated string uuid_list = 5;
+}

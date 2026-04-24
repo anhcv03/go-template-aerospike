@@ -1,0 +1,85 @@
+syntax = "proto3";
+import "pkg/proto/ag_algo/Flight.proto";
+import "pkg/proto/ag_algo/Point.proto";
+import "pkg/proto/ag_algo/AfErrorCode.proto";
+import "pkg/proto/ag_algo/InterceptionInfo.proto";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+message FromCombatPatrolInput {
+    GRPCGeodeticState target = 1; //
+    GRPCFlight flight = 2; //
+    GRPCGeodeticState interceptor = 3; //
+    double targetLastUpdateTime = 4; //
+    double interceptorLastUpdateTime = 5; //
+}
+message FromCombatPatrolInputList {
+    repeated FromCombatPatrolInput patrolInputs = 1; //
+}
+
+message FromAirportInput {
+    GRPCGeodeticState target = 1; //
+    GRPCFlight flight = 2; //
+    double targetLastUpdateTime = 3; //
+}
+message FromAirportInputList {
+    repeated FromAirportInput airportInputs = 1; //
+}
+
+//auto update because of target's change
+message UpdateInterceptInput {
+    GRPCGeodeticState target = 1; //
+    GRPCFlight flight = 2; //
+    GRPCGeodeticState interceptor = 3; //
+    double targetLastUpdateTime = 4; //
+    double interceptorLastUpdateTime = 5; //
+}
+message UpdateInterceptInputList {
+    repeated UpdateInterceptInput updateInputs = 1; //
+}
+
+//user edit
+message EditInterceptInput {
+    GRPCFlight oldFlight = 1; //
+    GRPCFlight newFlight = 2; //
+    GRPCGeodeticState target = 3; //
+    GRPCGeodeticState interceptor = 4; //
+    double targetLastUpdateTime = 5; //
+    double interceptorLastUpdateTime = 6; //
+}
+
+message ILFromAirportInput {
+    GRPCGeodeticState target = 1; //
+    GRPCFlight flight = 2; //
+    double lineLength = 3; //
+}
+
+message ILFromCombatPatrolInput {
+    GRPCGeodeticState target = 1; //
+    GRPCFlight flight = 2; //
+    GRPCGeodeticState interceptor = 3; //
+    double lineLength = 4; //
+}
+
+message ILProtectionInput {
+    GRPCGeodeticState target = 1; //
+    GRPCGeodeticPosition protectionTarget = 2; //
+    GRPCFlight flight = 3; //
+    double lineLength = 4; //
+    double distanceProtectionToLine = 5; //
+}
+
+message GRPCInterceptionLineOutput {
+    double interceptionDistanceFromTarget = 1; //
+    double takeoffDistanceFromTarget = 2; //
+    double level1DistanceFromTarget = 3; //
+    GRPCAfErrorCode errorCode = 4; //
+    string errorData = 5; //
+    double targetHeading = 6; //
+
+    GRPCInterceptionLineForm interceptionLine = 7; //
+    GRPCInterceptionLineForm takeoffLine = 8; //
+    GRPCInterceptionLineForm level1Line = 9; //
+}

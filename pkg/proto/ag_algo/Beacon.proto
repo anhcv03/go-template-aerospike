@@ -1,0 +1,12 @@
+syntax = "proto3";
+import "pkg/proto/ag_algo/Point.proto";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+message GRPCBeacon {
+    string id = 1; //
+    string name = 2; //
+    GRPCGeodeticPosition position = 3; //
+}

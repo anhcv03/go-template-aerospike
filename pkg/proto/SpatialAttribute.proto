@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package spatial_attribute;
+
+option go_package = "pkg/pb";
+
+
+message GeodeticPosition {
+    float Longitude = 1;//`json:"longitude" bson:"longitude" validate:"gte=-180,lte=180"`
+    float Latitude = 2;//`json:"latitude" bson:"latitude" validate:"gte=-90,lte=90.0"`
+    float Altitude = 3;//`json:"altitude" bson:"altitude" validate:"gte=0,lte=99999"`
+}
+
+message GeographicPosition {
+    float Longitude = 1;//`json:"longitude" bson:"longitude" validate:"gte=-180,lte=180"`
+    float Latitude = 2;//`json:"latitude" bson:"latitude" validate:"gte=-90,lte=90.0"`
+}
+
+
+
+
+message GeodeticPositionWithTimeAndVelocity {
+    float Longitude = 1;//`json:"longitude" bson:"longitude" validate:"gte=-180,lte=180"`
+    float Latitude = 2;//`json:"latitude" bson:"latitude" validate:"gte=-90,lte=90.0"`
+    float Altitude = 3;//`json:"altitude" bson:"altitude" validate:"gte=0,lte=99999"`
+    PolarVelocity PolarVelocity = 4;//`json:"polar_velocity" bson:"polar_velocity" validate:"gte=0,lte=99999"`
+    float EstimateTime = 5;//`json:"eta" bson:"eta" validate:"gte=0"`
+}
+
+
+
+message CartesianVelocity {
+    float Vx = 1;//`json:"vx" bson:"vx"`
+    float Vy = 2;//`json:"vy" bson:"vy"`
+    float Vz = 3;//`json:"vz" bson:"vz"`
+}
+ 
+
+
+enum Dimension {
+	DIMENSION_2D = 0;
+	DIMENSION_3D = 1;
+}
+
+// Note: All units are standardized. I.e: m/s, radian, meter
+
+message CartesianPosition {
+	optional float x = 1;//meter
+	optional float y = 2;
+	optional float z = 3;
+}
+
+message PolarPosition {
+	optional float range = 1;//meter
+	optional float azimuth = 2;//radian
+	optional float elevation = 3;//meter
+}
+
+// message CartesianVelocity {
+// 	optional float vx = 1;//m/s
+// 	optional float vy = 2;
+// 	optional float vz = 3;
+// }
+
+message PolarVelocity {
+	optional float speed = 1;//m/s
+	optional float heading = 2;//radian
+}

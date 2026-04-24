@@ -1,0 +1,14 @@
+[Unit]
+Description=SERVICE_DESCRIPTION
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=3s
+ExecStart=SERVICE_BIN start SERVICE_CONFIG
+EnvironmentFile=SERVICE_ENV
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

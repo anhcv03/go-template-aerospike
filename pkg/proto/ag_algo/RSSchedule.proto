@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package com.vht.afad.afmessages;;
+
+option go_package = "./ag";
+
+import "pkg/proto/ag_algo/RSRadar.proto";
+
+message GRPCRSHour {
+    double area = 3;//
+    repeated com.vht.afad.afmessages.GRPCRSRadar radars = 4;//
+}
+
+message GRPCRSSchedule {
+    repeated GRPCRSHour hours = 1;//
+    double area = 2;//
+    int32 stateSSCD = 3;//
+}

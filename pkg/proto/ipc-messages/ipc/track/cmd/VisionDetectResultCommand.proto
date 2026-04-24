@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package com.vht.bms.messages;
+
+option java_package = "com.vht.bms.messages.track.cmd";
+option java_outer_classname = "VisionDetectResultCommandProto";
+option go_package = "./ipc";
+
+
+
+message VisionDetectResultCommand {
+    optional string source_id = 1;
+    optional int32 source_track_id = 2;
+
+    repeated DetectTarget detect_targets = 3;
+}
+
+message DetectTarget {
+    optional int32 type = 1;
+    optional int32 count = 2;
+}

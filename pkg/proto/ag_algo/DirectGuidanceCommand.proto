@@ -1,0 +1,18 @@
+syntax = "proto3";
+import "pkg/proto/ag_algo/Flight.proto";
+import "pkg/proto/ag_algo/Turnpoint.proto";
+import "pkg/proto/ag_algo/Waypoint.proto";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+message DirectGuidanceCommand {
+	GRPCFlight flight = 1; //
+	GRPCTurnDirection turnDirection = 2; //
+	double bankAngle = 3; //
+	double heading = 4; //
+	double speed = 5; //
+	double altitude = 6; //
+	TurnType turnType = 7; //
+}

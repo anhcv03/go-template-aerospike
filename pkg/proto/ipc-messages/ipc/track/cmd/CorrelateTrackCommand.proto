@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package com.vht.bms.messages;
+
+option java_package = "com.vht.bms.messages.track.cmd";
+option java_outer_classname = "CorrelateTrackCommandProto";
+option go_package = "./ipc";
+
+// Correlate second track into first track
+message CorrelateTrackCommand {
+    int32 first_track_id = 1;
+    int32 second_track_id = 2;
+}
+
+// De-correlate a source track of a system track. After de-correlation, the source track will become:
+// (1) a new system track, or
+// (2) source-track of another system track
+//
+// For example: system track id 1000 de-correlate a source track (source 30, id 50)
+// Ex1: Source track become new system track => Message details:
+//          track_id = 1000
+//          source_id = 30
+//          source_track_id = 50
+//
+// Ex2: Source track become source track of track id 1001 => Message details:
+//          track_id = 1000
+//          source_id = 30
+//          source_track_id = 50
+//          target_track_id = 1001
+message DecorrelateTrackCommand {
+    int32 track_id = 1;
+
+    string source_id = 2;
+    int32 source_track_id = 3;
+
+    // If target_track_id = 0, source track will become a new system track,
+    // else source track will be correlated into target track (if possible)
+    int32 target_track_id = 4;
+}

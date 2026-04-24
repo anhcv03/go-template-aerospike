@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package patch_options;
+
+option go_package = "pkg/pb";
+
+message PatchOptions {
+    //Operations is the field for json bytes of the Patch according to the standard of JSON Patch https://jsonpatch.com/
+    //Use the libraries for param data then encode it as byte array
+    bytes Operations = 1;//`json:"operations"`
+    string ID = 2;//`json:"id,omitempty" bson:"_id,omitempty"`
+}
+
+message PatchResponse {
+    bool IsOk = 1;//
+    string Message = 2;//
+}

@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package com.vht.bms.messages;
+
+option java_package = "com.vht.bms.messages.track.cmd";
+option java_outer_classname = "RemoveTrackCommandProto";
+option go_package = "./ipc";
+
+message RemoveTrackCommand {
+    repeated int32 track_id_list = 1;
+    bool remove_all_tracks = 2; // If true, request to remove all tracks regardless track id list content
+}

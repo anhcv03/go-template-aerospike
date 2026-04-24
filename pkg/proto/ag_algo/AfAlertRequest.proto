@@ -1,0 +1,14 @@
+syntax = "proto3";
+import "pkg/proto/ag_algo/Flight.proto";
+import "pkg/proto/ag_algo/Track.proto";
+import "pkg/proto/ag_algo/SystemParameter.proto";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+message AfAlertRequest {
+    repeated GRPCFlight flights = 1; //
+    repeated GRPCTrack tracks = 2; //
+    repeated GRPCSystemParameter param = 3; //
+}

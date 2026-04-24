@@ -1,0 +1,174 @@
+syntax = "proto3";
+
+package drone;
+
+option go_package = "pkg/pb";
+import "pkg/proto/SearchOptions.proto";
+import "pkg/proto/PatchOptions.proto";
+import "pkg/proto/SpatialAttribute.proto";
+import "pkg/ipc/TrackMessage.proto";
+import "pkg/ipc/TrackInfoEnum.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+// Simplified proto for Drone CRUD only.
+
+enum AT_DRONE_STATUS {
+    ADS_UNKNOWN = 0;
+    ADS_FLYING = 1;
+    ADS_LANDED = 2;
+}
+
+message DroneBasicInfo {
+    string manufacturer     = 1;  // Nhà sản xuất
+    string model            = 2;  // Model thiết bị
+    string serial_number    = 3;  // Số sê-ri (COD)
+    string registration_id  = 4;  // Registration / Remote ID chuẩn
+    string type             = 5;  // Type of Drones
+    string standard         = 6;
+}
+
+// Thông số kỹ thuật của drone
+message DroneSpec {
+    double mass_kg               = 1;  // Khối lượng bản thân
+    double max_payload_kg        = 2;  // Tải trọng tối đa
+    double max_battery_capacity  = 3;  // Dung lượng pin tối đa
+    double max_power_w           = 4;  // Công suất tối đa
+    double max_speed_mps         = 5;  // Tốc độ tối đa
+    repeated double size_m       = 6;  // Kích thước (vd [dài, rộng, cao])
+    double max_takeoff_weight_kg = 7;
+    int32 time_for_once_fly      = 8;
+    string propose_usage         = 9;
+}
+
+// Thực thể Drone tổng hợp, dùng trong API
+message Drone {
+    string            id             = 1;  // `json:"id,omitempty" bson:"_id"`
+    string            gcs_id         = 2;  // GcsID
+    AT_DRONE_STATUS   drone_status   = 3;
+    string            owner_id       = 4;
+    string            image          = 5;
+
+    DroneBasicInfo    basic_info     = 6;  // Thông tin tĩnh (Postgres)
+    DroneSpec         spec           = 7;  // Thông số kỹ thuật (Mongo)
+
+    uint64            created_at     = 8;
+    uint64            updated_at     = 9;
+    string            created_by     = 10;
+    string            updated_by     = 11;
+    string            PilotId        = 12;
+}
+
+service DroneService {
+    rpc Create (Drone) returns (Drone);
+    rpc Get    (DroneByID) returns (Drone);
+    rpc List   (ListDroneRequest) returns (ListDroneResponse);
+    rpc Update (Drone) returns (Drone);
+    rpc Delete (DroneByID) returns (DeleteDroneResponse);
+}
+
+message DroneByID {
+    string id = 1;
+}
+
+message ListDroneRequest {
+    int32 page = 1;
+    int32 size = 2;
+}
+
+message ListDroneResponse {
+    repeated Drone items = 1;
+    int64 total = 2;
+}
+
+message DeleteDroneResponse {
+    bool success = 1;
+}
+
+
+
+enum AT_UAV_OP_MODE {
+    AUOM_MODE_UNKNOWN = 0;
+    AUOM_MODE_ONE = 1;
+
+}
+
+
+enum AT_VALIDATE_STATUS {
+    ADS_CREATED = 0;
+    ADS_SENT = 1;
+    ADS_APPROVED = 2;
+}
+
+
+message SearchDroneResponse {
+    repeated Drone Drones = 1;//
+    int32 TotalCount =2;//
+}
+
+message TrackHistory {
+    string  ID          = 1;//`json:"id,omitempty" bson:"_id"`
+    string  DroneID     = 2;//`json:"drone_id,omitempty" bson:"drone_id"`
+    string  OrderID     = 3;//`json:"order_id,omitempty" bson:"order_id"`
+    string  DatasourceID  = 4;//`json:"datasource,omitempty" bson:"datasource"`
+    int32 TrackID = 5 ;//`json:"track_id,omitempty" bson:"track_id"`
+    bytes  LocationByte  = 6;//`json:"location_byte,omitempty" bson:"location_byte"`
+    uint64 CreatedAt = 7;//`json:"created_at,omitempty" bson:"created_at"  audit:"createdAt"`
+}
+
+
+message Location {
+    // string  ID          = 1;//`json:"id,omitempty" bson:"_id"`
+    spatial_attribute.GeodeticPosition GeodeticPosition  = 1;//`json:"geodetic_position,omitempty" bson:"geodetic_position"`
+    // uint64 CreatedAt = 3;//`json:"created_at,omitempty" bson:"created_at"  audit:"createdAt"`
+    // uint64 UpdatedAt = 4;//`json:"updated_at,omitempty" bson:"updated_at"  audit:"updatedAt"`
+}
+
+
+service TrackHistoryService {
+    rpc create (TrackHistory) returns (TrackHistory);
+    rpc search (search_options.SearchOptions) returns (SearchTrackHistoryResponse);
+    rpc patch (patch_options.PatchOptions) returns (patch_options.PatchResponse);
+}
+
+message SearchTrackHistoryResponse {
+    repeated TrackHistory TrackHistorys = 1;//
+    int32 TotalCount =2;//
+}
+
+
+
+message ObjectTrack {
+    string  ID          = 1;//`json:"id,omitempty" bson:"_id"`
+    int32  ObjectTrackID = 2;//`json:"object_track_id,omitempty" bson:"object_track_id"`
+    string ObjectID = 3;//`json:"object_id,omitempty" bson:"object_id"`
+    spatial_attribute.PolarVelocity PolarVelocity = 4;//`json:"polar_velocity,omitempty" bson:"polar_velocity"`
+    double Heading = 5;//`json:"heading,omitempty" bson:"heading"`
+    double Battery = 6;//`json:"battery,omitempty" bson:"battery"`
+    map<string, uint64> DatasourcesLatestUpdate = 7;//`json:"datasource_latest_update,omitempty" bson:"datasource_latest_update"`
+    spatial_attribute.GeodeticPosition Position  = 8;//`json:"position,omitempty" bson:"position"`
+    AT_DRONE_STATUS  DroneStatus      = 9;//`json:"drone_status,omitempty" bson:"drone_status"`
+    repeated com.vht.bms.messages.TrackMessage SourceTracks= 10;//`json:"source_tracks,omitempty" bson:"source_tracks"`
+    com.vht.bms.messages.AircraftType AircraftType= 11;//`json:"aircraft_type,omitempty" bson:"aircraft_type"`
+    uint64 RemainTime = 51;//`json:"remain_time,omitempty" bson:"remain_time"  audit:"updatedAt"`
+    uint64 CreatedAt = 52;//`json:"created_at,omitempty" bson:"created_at"  audit:"createdAt"`
+    uint64 UpdatedAt = 53;//`json:"updated_at,omitempty" bson:"updated_at"  audit:"updatedAt"`
+    string CreatedBy = 54;//`json:"created_by,omitempty" bson:"created_by"`
+    string UpdatedBy = 55;//`json:"updated_by,omitempty" bson:"updated_by"`
+}
+
+
+service ObjectTrackService {
+    rpc create (ObjectTrack) returns (ObjectTrack);
+    rpc search (search_options.SearchOptions) returns (SearchObjectTrackResponse);
+    rpc patch (patch_options.PatchOptions) returns (patch_options.PatchResponse);
+    rpc findByID (google.protobuf.Int32Value) returns (ObjectTrack);
+    rpc findAll (google.protobuf.Empty) returns (SearchObjectTrackResponse);
+}
+
+message SearchObjectTrackResponse {
+    repeated ObjectTrack ObjectTracks = 1;//
+    int32 TotalCount =2;//
+}
+
+message ObjectTrackRequest {}

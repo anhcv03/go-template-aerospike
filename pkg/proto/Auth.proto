@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "pkg/pb";
+
+import "pkg/proto/SearchOptions.proto";
+import "pkg/proto/PatchOptions.proto";
+
+enum BMS_ROLE {
+    BR_UNKNOWN = 0;
+    BR_SYSTEM_ADMIN = 1;
+    BR_BMS_ADMIN = 2;
+    BR_BMS_LEADER = 3;
+    BR_BMS_EXECUTOR = 4;
+    BR_BMS_VIEWER = 5;
+}
+
+
+message LoginInfo {
+    string UserName = 1;//`json:"user_name"`
+    string Password = 2;//`json:"password"`
+}
+
+message AuthUser {
+    string ID = 1;//`json:"id" bson:"_id"`
+    string Email = 2;//`json:"email" bson:"email"`
+    string FirstName = 3;//`json:"first_name" bson:"first_name"`
+    string LastName = 4;//`json:"last_name" bson:"last_name"`
+    string Bio = 5;//`json:"bio" bson:"bio"`
+    string UserName = 6;//`json:"user_name" bson:"user_name" index:"unique"`
+    string UnitCode = 7;//`json:"unit_code" bson:"unit_code"`
+    string Password = 8;//`json:"password" bson:"password"`
+    BMS_ROLE Role = 9;//`json:"role" bson:"role"`
+    uint32 LoginFailedCount = 10;//`json:"login_failed_count" bson:"login_failed_count"`
+    bool IsLoggedIn = 11;//`json:"is_logged_in" bson:"is_logged_in"`
+    string Token = 12;//`json:"token" bson:"token"`
+    //Thong tin Audit
+    uint64 CreatedAt = 13;//`json:"created_at" bson:"created_at"  audit:"createdAt"`
+    uint64 UpdatedAt = 14;//`json:"updated_at" bson:"updated_at"  audit:"updatedAt"`
+    string CreatedBy = 15;//`json:"created_by" bson:"created_by"`
+    string UpdatedBy = 16;//`json:"updated_by" bson:"updated_by"`
+}
+
+
+message SearchAuthUserResponse {
+    repeated AuthUser AuthUser = 1;//
+    int32 TotalCount =2;//
+}
+
+service AuthUserService {
+    rpc create (AuthUser) returns (AuthUser);
+    rpc search (search_options.SearchOptions) returns (SearchAuthUserResponse);
+    rpc patch (patch_options.PatchOptions) returns (patch_options.PatchResponse);
+}
+

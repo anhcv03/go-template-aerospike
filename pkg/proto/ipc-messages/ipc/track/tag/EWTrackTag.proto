@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package com.vht.bms.messages;
+
+import "UUID.proto";
+
+option java_package = "com.vht.bms.messages.track.tag";
+option java_outer_classname = "EWTrackTagProto";
+option go_package = "./ipc";
+
+// NOTE: EW System set frequency fields in KHz. According to our convention, these values have to be converted to Hz
+message EWComintTargetInfo {
+    optional string modulation = 1; // Refer to EWModulationType in EWEnum.proto
+    optional float power = 2;
+    optional double bandwidth = 3;
+
+    optional string comint_object_type = 10; // Refer to EWComintObjectType in EWEnum.proto
+    optional string target_type = 11; // Refer to EWTargetType in EWEnum.proto
+    optional string communication_property = 12; // Refer to EWCommunicationProperty in EWEnum.proto
+
+    optional int32 operation_mode = 20; // Refer to EWOperationMode in EWEnum.proto
+    optional int32 jamming_status = 21; // Refer to EWJammingStatus in EWEnum.proto. Origin name in EW System: `jamming_or_verifying` (???)
+    optional int32 verification_result = 22; // Refer to EWVerificationResult in EWEnum.proto
+    optional bool is_marked_target = 23; // A marked target is for jamming operation. Origin name in EW System: `isCommandTarget`
+
+    //------------------------
+    // Unclear purpose and values fields
+    //------------------------
+    // string identification_type = 18;       // ???
+    // string identification_id = 19;         // ???
+}
+
+message EWIndirectComintTargetInfo {
+    optional string modulation = 1; // Refer to EWModulationType in EWEnum.proto
+
+    optional string comint_object_type = 2; // Refer to ComintObjectType in EWEnum.proto
+    optional string target_type = 3; // Refer to EWTargetType in EWEnum.proto
+
+    UUID linked_comint_target_uuid = 4;
+}
+
+message EWElintTargetInfo {
+    optional string radar_name = 1;
+    optional string radar_type = 2;
+
+    optional string elint_object_type = 10; // Refer to EWElintObjectType in EWEnum.proto
+    optional string ew_aircraft_type = 11; // Refer to EWAircraftType in EWEnum.proto
+    optional string ew_aircraft_model = 12; // For example: A-350 (Airbus), B-747 (Boeing), etc. Origin field in EW System: aircraft_name
+
+    optional int32 operation_mode = 20; // Refer to EWOperationMode in EWEnum.proto
+    optional int32 jamming_status = 21; // Refer to EWJammingStatus in EWEnum.proto. Origin name in EW System: `jamming_or_verifying` (???)
+    optional int32 verification_result = 22; // Refer to EWVerificationResult in EWEnum.proto
+    optional bool is_marked_target = 23; // A target which is marked for jamming operation. Origin name in EW System: `isCommandTarget`
+
+    //------------------------
+    // Unclear purpose and values fields
+    //------------------------
+    // string identificationType = 24;
+    // string identificationId = 25;
+}
+
+message EWElintRadarInfo {
+    UUID linked_elint_target_uuid = 1;
+    optional string radar_type = 2;  // Refer to EWRadarType in EWEnum.proto
+
+    optional float repeated_interval = 3;
+    optional float pulse_width = 4;
+}
+
+
+message EWTrackTag {
+    UUID uuid = 1;
+    optional double frequency = 2;
+
+    optional string note = 3;
+
+    optional int64 start_timestamp = 4; // Start time of an EW track is the time when EW sensor detect the track, not the time our system receive its first message (created_timestamp)
+    optional int64 detection_duration = 5; // in seconds
+
+    oneof EWTrackInfo {
+        EWElintRadarInfo elint_radar_info = 10;
+        EWElintTargetInfo elint_target_info = 11;
+        EWComintTargetInfo comint_target_info = 12;
+        EWIndirectComintTargetInfo indirect_comint_target_info = 13;
+    }
+}

@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package objectdetection;
+
+option java_package = "com.vht.bms.messages.objectdetection";
+option java_outer_classname="VisonDetectResultProto";
+option go_package = "./ipc";
+
+message Result {
+    // All info: msg_id, image_id, source_id, track_id received from message in topic.source in vision_config.yaml
+    int32 msg_id = 1;                   // id of message
+    int32 image_id = 2;                 // id of image
+    string source_id = 3;               // id of source
+    int32 track_id = 4;                 // id of track: get this info because message only received when tank is tracking a specific target
+    repeated DetectResult results = 5;  // result of detecting object from image
+}
+
+message DetectResult {
+  repeated float bboxes = 1;            // bboxes = [x_center, y_center, width, height], all values lies in [0, 1] - normalized to length of image
+  float score = 2;                      // score : confident score of model, lies in [0, 1]
+  ObjectType type = 3;                  // type of object detected in image
+  enum ObjectType {
+    UNKNOWN = 0;
+    ARMOUR = 1;
+    ARTILLERY = 2;
+    PERSON = 3;
+    TANK = 4;
+    TRUCK = 5;
+    DAMAGED_TANK = 6;
+    }
+}
+
+
+

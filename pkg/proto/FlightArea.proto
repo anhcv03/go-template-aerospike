@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package drone;
+
+option go_package = "pkg/pb";
+import "pkg/proto/SearchOptions.proto";
+import "pkg/proto/PatchOptions.proto";
+import "pkg/proto/SpatialAttribute.proto";
+
+
+message FlightArea {
+    string  ID          = 1;//`json:"id,omitempty" bson:"_id"`
+    repeated spatial_attribute.GeographicPosition  Boundary      = 2;//`json:"boundary,omitempty" bson:"boundary"`
+    string  UserID        = 3;//`json:"user_id,omitempty" bson:"user_id"`
+    uint64 CreatedAt = 52;//`json:"created_at,omitempty" bson:"created_at"  audit:"createdAt"`
+    uint64 UpdatedAt = 53;//`json:"updated_at,omitempty" bson:"updated_at"  audit:"updatedAt"`
+    string CreatedBy = 54;//`json:"created_by,omitempty" bson:"created_by"`
+    string UpdatedBy = 55;//`json:"updated_by,omitempty" bson:"updated_by"`
+}
+
+
+service FlightAreaService {
+    rpc create (FlightArea) returns (FlightArea);
+    rpc search (search_options.SearchOptions) returns (SearchFlightAreaResponse);
+    rpc patch (patch_options.PatchOptions) returns (patch_options.PatchResponse);
+    rpc update (FlightArea) returns (FlightArea);
+}
+
+
+message SearchFlightAreaResponse {
+    repeated FlightArea FlightAreas = 1;//
+    int32 TotalCount =2;//
+}

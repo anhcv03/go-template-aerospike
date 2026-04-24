@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package com.vht.bms.messages;
+
+option java_package = "com.vht.bms.messages.track.cmd";
+option java_outer_classname = "CreateTrackCommandProto";
+option go_package = "./ipc";
+
+import "ipc/track/TrackMessage.proto";
+
+message CreateTrackCommand {
+    repeated TrackMessage creating_tracks = 1;
+}

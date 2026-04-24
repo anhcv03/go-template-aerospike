@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Order WebSocket Listener</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .header {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .status {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: bold;
+        margin-top: 10px;
+      }
+
+      .status.connected {
+        background: #10b981;
+        color: white;
+      }
+
+      .status.disconnected {
+        background: #ef4444;
+        color: white;
+      }
+
+      .status.connecting {
+        background: #f59e0b;
+        color: white;
+      }
+
+      .controls {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .controls button {
+        padding: 10px 20px;
+        margin-right: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        transition: all 0.3s;
+      }
+
+      .btn-connect {
+        background: #10b981;
+        color: white;
+      }
+
+      .btn-connect:hover {
+        background: #059669;
+      }
+
+      .btn-disconnect {
+        background: #ef4444;
+        color: white;
+      }
+
+      .btn-disconnect:hover {
+        background: #dc2626;
+      }
+
+      .btn-clear {
+        background: #6b7280;
+        color: white;
+      }
+
+      .btn-clear:hover {
+        background: #4b5563;
+      }
+
+      .messages {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        max-height: 600px;
+        overflow-y: auto;
+      }
+
+      .message {
+        background: #f3f4f6;
+        border-left: 4px solid #667eea;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        animation: slideIn 0.3s ease-out;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .message-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .message-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #667eea;
+      }
+
+      .message-time {
+        font-size: 12px;
+        color: #6b7280;
+      }
+
+      .message-content {
+        background: white;
+        padding: 10px;
+        border-radius: 5px;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+        overflow-x: auto;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .info-box {
+        background: #dbeafe;
+        border-left: 4px solid #3b82f6;
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        color: #1e40af;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #6b7280;
+      }
+
+      .empty-state-icon {
+        font-size: 48px;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>📦 Order WebSocket Listener</h1>
+        <div>
+          <span class="status disconnected" id="status">Disconnected</span>
+        </div>
+        <div class="info-box" style="margin-top: 15px">
+          <strong>Endpoint:</strong> ws://localhost:33181/ws/orders<br />
+          <strong>Status:</strong>
+          <span id="connectionInfo">Not connected</span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn-connect" onclick="connect()">Connect</button>
+        <button class="btn-disconnect" onclick="disconnect()">
+          Disconnect
+        </button>
+        <button class="btn-clear" onclick="clearMessages()">
+          Clear Messages
+        </button>
+        <span id="messageCount" style="margin-left: 20px; color: #6b7280"
+          >Messages: 0</span
+        >
+      </div>
+
+      <div class="messages" id="messages">
+        <div class="empty-state">
+          <div class="empty-state-icon">📭</div>
+          <div>No messages yet. Connect to start listening for orders.</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let ws = null;
+      let messageCount = 0;
+      const wsUrl = "ws://localhost:33181/ws/orders";
+
+      function updateStatus(status, text) {
+        const statusEl = document.getElementById("status");
+        const infoEl = document.getElementById("connectionInfo");
+
+        statusEl.className = "status " + status;
+        statusEl.textContent = text;
+        infoEl.textContent = text;
+      }
+
+      function connect() {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          console.log("Already connected");
+          return;
+        }
+
+        updateStatus("connecting", "Connecting...");
+
+        ws = new WebSocket(wsUrl);
+
+        ws.onopen = function () {
+          updateStatus("connected", "Connected");
+          addInfoMessage("✅ Connected to WebSocket server");
+        };
+
+        ws.onmessage = function (event) {
+          messageCount++;
+          document.getElementById(
+            "messageCount"
+          ).textContent = `Messages: ${messageCount}`;
+
+          try {
+            const message = JSON.parse(event.data);
+            // Format mới: { "action": "create"|"update", "data": {...} }
+            if (message.action && message.data) {
+              addOrderMessage(message.data, message.action);
+            } else {
+              // Fallback cho format cũ (backward compatibility)
+              addOrderMessage(message, "unknown");
+            }
+          } catch (error) {
+            console.error("Error parsing message:", error);
+            addInfoMessage("❌ Error parsing message: " + error.message);
+          }
+        };
+
+        ws.onerror = function (error) {
+          console.error("WebSocket error:", error);
+          updateStatus("disconnected", "Error");
+          addInfoMessage("❌ WebSocket error occurred");
+        };
+
+        ws.onclose = function () {
+          updateStatus("disconnected", "Disconnected");
+          addInfoMessage("🔌 Disconnected from WebSocket server");
+          ws = null;
+        };
+      }
+
+      function disconnect() {
+        if (ws) {
+          ws.close();
+          ws = null;
+        }
+      }
+
+      function clearMessages() {
+        const messagesEl = document.getElementById("messages");
+        messagesEl.innerHTML =
+          '<div class="empty-state"><div class="empty-state-icon">📭</div><div>No messages yet. Connect to start listening for orders.</div></div>';
+        messageCount = 0;
+        document.getElementById("messageCount").textContent = "Messages: 0";
+      }
+
+      function addInfoMessage(text) {
+        const messagesEl = document.getElementById("messages");
+        const emptyState = messagesEl.querySelector(".empty-state");
+        if (emptyState) {
+          emptyState.remove();
+        }
+
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "message";
+        messageDiv.innerHTML = `
+                <div class="message-header">
+                    <div class="message-title">ℹ️ Info</div>
+                    <div class="message-time">${new Date().toLocaleString(
+                      "vi-VN"
+                    )}</div>
+                </div>
+                <div>${text}</div>
+            `;
+        messagesEl.insertBefore(messageDiv, messagesEl.firstChild);
+      }
+
+      function addOrderMessage(order, action) {
+        const messagesEl = document.getElementById("messages");
+        const emptyState = messagesEl.querySelector(".empty-state");
+        if (emptyState) {
+          emptyState.remove();
+        }
+
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "message";
+
+        // Xác định icon và màu sắc dựa trên action
+        let actionIcon = "📦";
+        let actionText = "Order";
+        let actionColor = "#667eea";
+        if (action === "create") {
+          actionIcon = "✨";
+          actionText = "New Order Created";
+          actionColor = "#10b981";
+        } else if (action === "update") {
+          actionIcon = "🔄";
+          actionText = "Order Updated";
+          actionColor = "#f59e0b";
+        }
+
+        // Format order data nicely
+        const orderInfo = {
+          ID: order.id,
+          IntID: order.int_id,
+          Source: order.source,
+          Dest: order.dest,
+          Status: order.status,
+          DroneID: order.drone_id,
+          ETA: order.eta ? new Date(order.eta).toLocaleString("vi-VN") : "N/A",
+          FlightNotificationID: order.flight_notification_id || "N/A",
+          FlightNotificationStatus: order.flight_notification_status || "N/A",
+          CreatedAt: order.created_at
+            ? new Date(order.created_at).toLocaleString("vi-VN")
+            : "N/A",
+        };
+
+        messageDiv.innerHTML = `
+                  <div class="message-header">
+                     <div class="message-title" style="color: ${actionColor};">${actionIcon} ${actionText}: ${
+          order.id || "N/A"
+        }</div>
+                     <div class="message-time">${new Date().toLocaleString(
+                       "vi-VN"
+                     )}</div>
+                 </div>
+                 <div style="margin-bottom: 10px; padding: 8px; background: ${actionColor}20; border-radius: 5px; color: ${actionColor}; font-weight: bold;">
+                   Action: <span style="text-transform: uppercase;">${action}</span>
+                 </div>
+                 <div class="message-content">
+                     <pre>${JSON.stringify(orderInfo, null, 2)}</pre>
+                 </div>
+                 <details style="margin-top: 10px;">
+                     <summary style="cursor: pointer; color: #667eea; font-weight: bold;">View Full Order Data</summary>
+                     <div class="message-content" style="margin-top: 10px;">
+                         <pre>${JSON.stringify(order, null, 2)}</pre>
+                     </div>
+                 </details>
+             `;
+        messagesEl.insertBefore(messageDiv, messagesEl.firstChild);
+      }
+
+      // Auto-connect on page load
+      window.addEventListener("load", function () {
+        // Uncomment the line below to auto-connect
+        // connect();
+      });
+    </script>
+  </body>
+</html>

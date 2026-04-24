@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "pkg/pb";
+import "pkg/proto/SearchOptions.proto";
+import "pkg/proto/PatchOptions.proto";
+
+
+enum AT_USER_ROLE {
+    AUR_UNKOWN = 0;
+    AUR_GUEST = 1;
+    AUR_LOCKER = 2;
+    AUR_ADMIN = 3;
+}
+
+
+message User {
+    string ID = 1;//`json:"id" bson:"_id"`
+    string UserName = 2;//`json:"user_name" bson:"user_name"`
+    AT_USER_ROLE UserRole = 3;//`json:"user_role" bson:"user_role"`
+    uint64 CreatedAt = 4;//`json:"created_at" bson:"created_at"  audit:"createdAt"`
+    uint64 UpdatedAt = 5;//`json:"updated_at" bson:"updated_at"  audit:"updatedAt"`
+    string CreatedBy = 6;//`json:"created_by" bson:"created_by"`
+    string UpdatedBy = 7;//`json:"updated_by" bson:"updated_by"`
+}
+
+
+service UserService {
+    rpc create (User) returns (User);
+    rpc search (search_options.SearchOptions) returns (SearchUserResponse);
+    rpc patch (patch_options.PatchOptions) returns (patch_options.PatchResponse);
+}
+
+message SearchUserResponse {
+    repeated User Users = 1;//
+    int32 TotalCount =2;//
+}

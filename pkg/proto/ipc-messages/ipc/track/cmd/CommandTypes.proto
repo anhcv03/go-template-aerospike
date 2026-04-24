@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package com.vht.bms.messages;
+
+option java_package = "com.vht.bms.messages.track.cmd";
+option java_outer_classname = "CommandTypeEnumProto";
+option go_package = "./ipc";
+
+enum CommandType {
+	UNKNOWN = 0;
+
+	// Track command
+	CREATE_TRACK = 2;
+	EDIT_TRACK = 3;
+	REMOVE_TRACK = 4;
+	CORRELATE_TRACK = 5;
+	DECORRELATE_TRACK = 6;
+
+	// Config
+	ALGO_CONFIG = 50;
+}

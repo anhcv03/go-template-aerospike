@@ -1,0 +1,10 @@
+Package: DEB_PACKAGE
+Version: DEB_VERSION
+Section: utils
+Priority: optional
+Architecture: DEB_ARCHITECTURE
+Maintainer: DEB_MAINTAINER
+Pre-Depends: DEB_PRE_DEPENDS
+Depends: DEB_DEPENDS
+Recommends: DEB_RECOMMENDS
+Description: DEB_DESCRIPTION

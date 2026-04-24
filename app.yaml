@@ -1,0 +1,23 @@
+postgres:
+  host: "172.16.36.177"
+  port: 15432
+  name: "UTM-Track"
+  user: "admin"
+  pass: "123456a@"
+grpc:
+  port: 8081
+http:
+  port: 8080
+nats:
+  server: 172.16.36.161:30042
+logger:
+  log_max_size_mb: 100
+  log_compress: false
+  log_localtime: true
+  log_max_backups: 10
+  log_max_age_day: 30
+  log_dir: "./logs"
+  log_rotate_daily: true
+tracks:
+  history_batch_size: 10000
+  history_batch_max_age: 500

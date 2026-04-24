@@ -1,0 +1,11 @@
+syntax = "proto3";
+import "pkg/proto/ag_algo/Flight.proto";
+import "pkg/proto/ag_algo/AfAlertRequest.proto";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+service AfAlertService {
+    rpc CalculateAlert(AfAlertRequest) returns (GRPCFlightList) {}
+}

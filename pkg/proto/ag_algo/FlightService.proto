@@ -1,0 +1,27 @@
+syntax = "proto3";
+import "pkg/proto/ag_algo/Flight.proto";
+import "pkg/proto/ag_algo/Point.proto";
+import "pkg/proto/ag_algo/FlightRequest.proto";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+/**
+ * Calculate the position of aircraft when it flies along a flight route at a specific time.
+ * sequence of planned track is the sequence of the last passed waypoint
+ * sequence = -1  -> if planned track has not passed the 1st wp yet
+ * sequence = i   -> planned track on turn arc i or segment [i][i+1]
+ * duration		duration since the flight started in second
+ * return	 	position of the planned track
+ */
+service FlightService {
+  //for direct guidance flight, return equal duration points
+  //and the (mini) equal duration route (from planned track position to the last equal duration point)
+  rpc getPlannedTrack(GRPCFlight) returns (PlannedTrackResponse);
+
+  rpc getFastForwardPlannedTrack(PlannedTrackRequest) returns (PlannedTrackResponse);
+  rpc getGuidedTrack(GuidedTrackRequest) returns (GRPCGeodeticState);
+
+  rpc UpdateFlight(GRPCFlight) returns (GRPCFlight) {}
+}

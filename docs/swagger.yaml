@@ -1,0 +1,614 @@
+definitions:
+  jsonpatch.Operation:
+    additionalProperties:
+      items:
+        type: integer
+      type: array
+    type: object
+  order.CreateOrderRequest:
+    properties:
+      corridor_id:
+        type: string
+      dest:
+        description: điểm đích
+        type: string
+      drone_id:
+        type: string
+      eta:
+        type: integer
+      gcs_id:
+        type: string
+      is_demo:
+        description: đơn hàng demo hay đơn hàng thật
+        type: boolean
+      order_status:
+        description: map sang pb.AT_ORDER_STATUS nếu cần
+        type: integer
+      priority:
+        description: map sang pb.AT_ORDER_PRORITY
+        type: integer
+      segments:
+        items:
+          $ref: '#/definitions/order.SegmentRequest'
+        type: array
+      size:
+        description: map sang pb.AT_ORDER_SIZE
+        type: integer
+      source:
+        description: điểm xuất phát
+        type: string
+      time_window:
+        $ref: '#/definitions/order.TimeWindowRequest'
+      user_create_id:
+        type: string
+      weight:
+        type: integer
+    type: object
+  order.OrderResponse:
+    properties:
+      corridor_id:
+        type: string
+      created_at:
+        type: integer
+      created_by:
+        type: string
+      dest:
+        description: điểm đích
+        type: string
+      drone_id:
+        type: string
+      eta:
+        type: integer
+      flight_authorization_approval_id:
+        type: string
+      flight_notification_id:
+        description: Flight notification fields (từ response của API /flight-notifications)
+        type: string
+      flight_notification_name:
+        type: string
+      flight_notification_status:
+        type: string
+      gcs_id:
+        type: string
+      id:
+        type: string
+      int_id:
+        description: mã đơn dạng số nguyên 5 chữ số
+        type: integer
+      is_demo:
+        description: đơn hàng demo hay đơn hàng thật
+        type: boolean
+      order_status:
+        description: map sang pb.AT_ORDER_STATUS nếu cần
+        type: integer
+      priority:
+        description: map sang pb.AT_ORDER_PRORITY
+        type: integer
+      segments:
+        items:
+          $ref: '#/definitions/order.SegmentRequest'
+        type: array
+      size:
+        description: map sang pb.AT_ORDER_SIZE
+        type: integer
+      source:
+        description: điểm xuất phát
+        type: string
+      time_window:
+        $ref: '#/definitions/order.TimeWindowRequest'
+      updated_at:
+        type: integer
+      updated_by:
+        type: string
+      user_create_id:
+        type: string
+      weight:
+        type: integer
+    type: object
+  order.SegmentRequest:
+    properties:
+      dest:
+        type: string
+      drone_id:
+        type: string
+      flight_lane_id:
+        type: string
+      segment_index:
+        type: integer
+      segment_status:
+        description: map sang pb.AT_SEGMENT_STATUS
+        type: integer
+      segment_type:
+        description: map sang pb.AT_SEGMENT_TYPE
+        type: integer
+      source:
+        type: string
+    type: object
+  order.TimeWindowRequest:
+    properties:
+      end_time:
+        type: integer
+      start_time:
+        type: integer
+    type: object
+  order.WebSocketOrderMessage:
+    properties:
+      action:
+        description: |-
+          Action của sự kiện.
+          - create: tạo mới đơn (sau khi tạo flight notification thành công)
+          - update: cập nhật đơn (PATCH)
+
+          enum: create,update
+        example: create
+        type: string
+      data:
+        allOf:
+        - $ref: '#/definitions/order.OrderResponse'
+        description: |-
+          Data là payload chi tiết của order sau khi tạo/cập nhật.
+          Schema giống như OrderResponse đang dùng cho HTTP API.
+    type: object
+  pb.AT_ORDER_PRORITY:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - AT_ORDER_PRORITY_AOP_UKNOWN
+    - AT_ORDER_PRORITY_AOP_NORMAL
+    - AT_ORDER_PRORITY_AOP_HIGH
+  pb.AT_ORDER_SIZE:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    type: integer
+    x-enum-varnames:
+    - AT_ORDER_SIZE_AOSZ_UNKNOWN
+    - AT_ORDER_SIZE_AOSZ_SMALL
+    - AT_ORDER_SIZE_AOSZ_MEDIUM
+    - AT_ORDER_SIZE_AOSZ_LARGE
+    - AT_ORDER_SIZE_AOSZ_OVERSIZE
+  pb.AT_ORDER_STATUS:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    type: integer
+    x-enum-varnames:
+    - AT_ORDER_STATUS_AOS_UNKNOWN
+    - AT_ORDER_STATUS_AOS_PENDING
+    - AT_ORDER_STATUS_AOS_IN_DELIVERY
+    - AT_ORDER_STATUS_AOS_DELIVERED
+    - AT_ORDER_STATUS_AOS_CANCELED
+  pb.AT_SEGMENT_STATUS:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - AT_SEGMENT_STATUS_ASS_UKNOWN
+    - AT_SEGMENT_STATUS_ASS_UNFINISHED
+    - AT_SEGMENT_STATUS_ASS_FINISHED
+  pb.AT_SEGMENT_TYPE:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    type: integer
+    x-enum-varnames:
+    - AT_SEGMENT_TYPE_AST_UKNOWN
+    - AT_SEGMENT_TYPE_AST_PRE_DELIVERY_ROUTE
+    - AT_SEGMENT_TYPE_AST_IN_DELIVERY_ROUTE
+    - AT_SEGMENT_TYPE_AST_RETURN_FLIGHT_ROUTE
+  pb.Order:
+    properties:
+      corridor_id:
+        type: string
+      created_at:
+        type: integer
+      created_by:
+        type: string
+      dest:
+        type: string
+      drone_id:
+        type: string
+      eta:
+        type: integer
+      gcs_id:
+        type: string
+      id:
+        type: string
+      order_status:
+        $ref: '#/definitions/pb.AT_ORDER_STATUS'
+      priority:
+        $ref: '#/definitions/pb.AT_ORDER_PRORITY'
+      segments:
+        description: repeated spatial_attribute.GeodeticPositionWithTime FlightRoute  =
+          7;//`json:"flight_route,omitempty" bson:"flight_route"`
+        items:
+          $ref: '#/definitions/pb.Segments'
+        type: array
+      size:
+        $ref: '#/definitions/pb.AT_ORDER_SIZE'
+      source:
+        type: string
+      time_window:
+        $ref: '#/definitions/pb.TimeWindow'
+      updated_at:
+        type: integer
+      updated_by:
+        type: string
+      user_create_id:
+        type: string
+      weight:
+        type: integer
+    type: object
+  pb.PatchResponse:
+    properties:
+      IsOk:
+        type: boolean
+      Message:
+        type: string
+    type: object
+  pb.Segments:
+    properties:
+      dest:
+        type: string
+      drone_id:
+        type: string
+      flight_lane_id:
+        type: string
+      segment_index:
+        type: integer
+      segment_status:
+        $ref: '#/definitions/pb.AT_SEGMENT_STATUS'
+      segment_type:
+        $ref: '#/definitions/pb.AT_SEGMENT_TYPE'
+      source:
+        type: string
+    type: object
+  pb.TimeWindow:
+    properties:
+      end_time:
+        type: integer
+      start_time:
+        type: integer
+    type: object
+  types.ErrorResponse:
+    properties:
+      code:
+        example: 400
+        type: integer
+      message:
+        example: status bad request
+        type: string
+    type: object
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample Go Template server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Go Template Project API
+  version: "1.0"
+paths:
+  /orders:
+    get:
+      consumes:
+      - application/json
+      description: Find all order
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/order.OrderResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Find all order
+      tags:
+      - orders
+    post:
+      consumes:
+      - application/json
+      description: Create a new order
+      parameters:
+      - description: order body
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/order.CreateOrderRequest'
+      - description: event api call flag
+        in: query
+        name: eventAPI
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/order.OrderResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Create a order
+      tags:
+      - orders
+  /orders/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete order by ID
+      parameters:
+      - description: order id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: event api call flag
+        in: query
+        name: eventAPI
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pb.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Delete order by ID
+      tags:
+      - orders
+    get:
+      consumes:
+      - application/json
+      description: Find order by ID
+      parameters:
+      - description: order id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/order.OrderResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Find order by ID
+      tags:
+      - orders
+    patch:
+      consumes:
+      - application/json
+      description: Patch order by ID use standard of JSON PATCH https://jsonpatch.com/
+      parameters:
+      - description: order id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Patch operation format Array of Operation Add, Remove, Replace,
+          Copy, Move, Test. Get example at https://jsonpatch.com/
+        in: body
+        name: order
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/jsonpatch.Operation'
+          type: array
+      - description: event api call flag
+        in: query
+        name: eventAPI
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pb.PatchResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Patch order by ID
+      tags:
+      - orders
+    put:
+      consumes:
+      - application/json
+      description: Update order by ID
+      parameters:
+      - description: order id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: order body
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/pb.Order'
+      - description: event api call flag
+        in: query
+        name: eventAPI
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pb.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Update order by ID
+      tags:
+      - orders
+  /orders/search:
+    get:
+      consumes:
+      - application/json
+      description: Search order use Query option https://github.com/jtlabsio/mongo/
+      parameters:
+      - description: page number
+        in: query
+        name: page[page]
+        type: integer
+      - description: page size
+        in: query
+        name: page[size]
+        type: integer
+      - description: filter by isDemo (true/false)
+        in: query
+        name: filter[is_demo]
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pb.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Search order
+      tags:
+      - orders
+  /orders/searchStatus:
+    get:
+      consumes:
+      - application/json
+      description: Search order by status using Query option https://github.com/jtlabsio/mongo/
+      parameters:
+      - description: order status
+        in: query
+        name: filter[order_status]
+        type: integer
+      - description: page number (0-based)
+        in: query
+        name: page[page]
+        type: integer
+      - description: page size
+        in: query
+        name: page[size]
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/order.OrderResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Search order by status
+      tags:
+      - orders
+  /ws/orders:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        **Kết nối**
+        - Endpoint: `GET /ws/orders`
+        - Server trả về HTTP `101 Switching Protocols` và nâng cấp kết nối lên WebSocket.
+        - Sau khi kết nối, mọi bản tin sẽ được gửi qua WebSocket, **không** phải response HTTP thông thường.
+
+        **Khi nào server gửi bản tin**
+        - Chỉ gửi cho các **đơn demo** (`is_demo = true`).
+        - Khi **tạo mới** đơn demo (sau khi tạo flight notification thành công) ⇒ `action = "create"`.
+        - Khi **cập nhật** đơn demo qua API PATCH ⇒ `action = "update"`.
+
+        **Format bản tin WebSocket**
+        Bản tin luôn có dạng:
+        ```json
+        {
+        "action": "create",            // hoặc "update"
+        "data": {
+        "id": "7175489d-5019-46bc-b5ad-d36b1e3e0899",
+        "int_id": 61410,
+        "source": "693673e2bbb6e622e589b03e",
+        "dest": "693673e2bbb6e622e589b03d",
+        "order_status": 2,           // 1=PENDING, 2=IN_DELIVERY, 3=DELIVERED, 4=CANCELED
+        "drone_id": "VT02",
+        "gcs_id": "",
+        "segments": [],
+        "user_create_id": "TrongVQ",
+        "weight": 1,
+        "size": 1,
+        "priority": 1,
+        "time_window": {
+        "start_time": 0,
+        "end_time": 0
+        },
+        "corridor_id": "",
+        "eta": 1765861561000,        // millis, thời gian dự kiến kết thúc bay
+        "is_demo": true,
+        "flight_notification_id": "fn-abc",
+        "flight_notification_name": "Approval ...",
+        "flight_authorization_approval_id": "approval-id",
+        "flight_notification_status": "ACTIVATED",
+        "created_at": 1765860661000,
+        "updated_at": 1765860761000,
+        "created_by": "",
+        "updated_by": ""
+        }
+        }
+        ```
+
+        Trong đó:
+        - `action`: `"create"` hoặc `"update"` để FE biết là tạo mới hay cập nhật.
+        - `data`: chính là `OrderResponse` (schema giống với các API `/orders` khác).
+      produces:
+      - application/json
+      responses:
+        "101":
+          description: 'WebSocket connection established. Messages are sent in format:
+            { \"action\": \"create\"|\"update\", \"data\": OrderResponse }'
+          schema:
+            $ref: '#/definitions/order.WebSocketOrderMessage'
+      summary: WebSocket connection for order notifications
+      tags:
+      - orders
+swagger: "2.0"

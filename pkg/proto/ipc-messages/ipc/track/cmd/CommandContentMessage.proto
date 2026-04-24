@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package com.vht.bms.messages;
+
+option java_package = "com.vht.bms.messages.track.cmd";
+option java_outer_classname = "CommandContentMessageProto";
+option go_package = "./ipc";
+
+import "ipc/track/cmd/CreateTrackCommand.proto";
+import "ipc/track/cmd/EditTrackCommand.proto";
+import "ipc/track/cmd/GroupTrackCommand.proto";
+import "ipc/track/cmd/RemoveTrackCommand.proto";
+import "ipc/track/cmd/CorrelateTrackCommand.proto";
+import "ipc/track/cmd/AlgoConfigCommand.proto";
+import "ipc/track/cmd/VisionDetectResultCommand.proto";
+import "ipc/track/cmd/QueryTrackCommand.proto";
+
+message CommandContentMessage {
+    // Each command must have an unique id.
+    // The sender has responsible to create this unique id.
+    // After the receiver finish to execute command, it will return a response with the same id, so sender can map which response is for which command
+    string command_id = 1;
+
+    oneof CommandContent {
+        CreateTrackCommand create_track_command = 2;
+        EditTrackCommand edit_track_command = 3;
+        RemoveTrackCommand remove_track_command = 4;
+        CorrelateTrackCommand correlate_track_command = 5;
+        DecorrelateTrackCommand decorrelate_track_command = 6;
+        GroupTrackCommand group_track_command = 7;
+        GroupTrackCommandV2 group_track_command_v2 = 8;
+
+        AlgoConfigCommand algo_config_command = 50;
+
+        VisionDetectResultCommand vision_detect_result_command = 51;
+        QueryTrackCommand query_track_command = 52;
+    }
+}

@@ -1,0 +1,15 @@
+syntax = "proto3";
+import "pkg/proto/ag_algo/Point.proto";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+message GRPCTrack {
+    int64 id = 1; //
+    int32 number = 2; //
+    string aircraftType = 4; //
+    string callSign = 5; //
+    GRPCGeodeticState geodetic = 6; //
+    double lastUpdateTime = 7; //
+}

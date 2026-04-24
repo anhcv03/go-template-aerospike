@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+package track;
+
+option go_package = "pkg/pb";
+
+// Kieu loai quy dao
+enum AIRCRAFT_TYPE {
+    // FROM VQ
+    AT_UNKNOWN = 0;             // CXD
+	AT_BOMBER = 1;              // May bay nem bom
+	AT_HELICOPTER = 2;          // Truc thang
+	AT_TRANSPORT = 3;           // Van tai
+	AT_REFUEL = 4;              // Tiep dau
+	AT_RECONNAISSANCE = 5;      // Trinh sat    
+	AT_ECM = 6;                 // Tac chien dien tu
+	AT_AWACS = 7;               // Chi huy tren khong
+	AT_TRAINING = 8;            // Huan luyen
+	AT_STRATEGIC_BOMBER = 9;    // Nem bom chien luoc
+	AT_CRUISE_MISSILE = 10;     // Ten lua hanh trinh
+	AT_BALLISTIC_MISSILE = 11;  // Ten lua dan dao
+	AT_UAV = 12;                // UAV chung dung cho ca VQC-PK, neu chua xac dinh canh quat, canh bang
+	AT_AEROSTAT = 13;           // Khinh khi cau
+	AT_CIVIL = 14;              // HKDD
+	AT_FIGHTER = 15;            // Chien dau
+
+	//For VQC-PK
+	AT_DRONE = 16;              // Drone - UAV canh quat
+	AT_FIXED_WING = 17;         // UAV canh bang
+	AT_BOMB = 18;               // Bom
+}
+
+// Nhan dang
+/// Xem xet lai so luong nhan dang, co nhan quy dao tu VQ ko ???
+enum TRACK_IDENTIFICATION {
+    TI_UNKNOWN = 0;         // Chua xac dinh
+    TI_DOMESTIC= 1;         // Quan su
+    TI_HOSTILE = 2;         // Dich
+    TI_ALLY = 3;            // Quoc noi
+    TI_INTERNATIONAL = 4;   // Quoc te
+    TI_OVERFLIGHT = 5;      // Qua canh
+}
+
+// Canh bao 
+/// Xem muc tieu (thuoc TI_UNKNOWN hoac TI_HOSTILE) co nam trong vung Canh bao hoac vung Bao ve ko??
+enum TRACK_ALERT {
+    TA_UNKNOWN = 0;      // Khong canh bao 
+    TA_WARNING = 1;      // Nam giua vung bao ve va vung canh bao 
+    TA_DANGER = 2;       // Nam trong vung bao ve
+}
+
+////////================================================================================
+//1. Thông tin qũy đạo 
+message Track {
+    int32 ID = 1;                               // Track ID
+    int32 TrackNumber = 2;                      // Track Number
+    float Altitude = 3;                         // Do cao
+    float Latitude = 4;                         // Kinh do
+    float Longitude = 5;                        // Vi do
+    optional AIRCRAFT_TYPE AircraftType = 6;             // Kieu loai quy dao
+    optional TRACK_IDENTIFICATION Identification = 7;    // Nhan dang
+    int32 Quantity = 8;                         // So luong
+    string Model = 9;                           // Model cua quy dao, vd: M96, Shahed...
+    float Velocity = 10;                        // Van toc
+    float Heading = 11;                         // Huong
+    int32 Quality = 12;                        // Chat luong
+    repeated TrackSourceInfo ListSources = 13;  // Danh sach Nguon
+    TrackSourceInfo PrimarySource = 14;         // Nguon hien tai - noi tong hop hien tai (hay nguon chinh ???)   
+    string Mode3a = 15;                         // Ma 3A
+    string Serial = 16;                         // Serial
+    string Shape = 17;                          // 0: canh bang, 1: cach quat, 2: Khong xac dinh
+    optional TRACK_ALERT Alert = 18;            // 0: binh thuong, 1: nam trong vung canh bao, 2: nam trong vung bao ve
+
+    int64 CreatedAt = 100;                      // Thoi gian tao
+    int64 UpdatedAt = 101;                      // Thoi gian cap nhat
+}
+
+// Thong tin nguon quy dao
+message TrackSourceInfo {
+    string SourceName = 1;      // Ten nguon phat hien
+    string TrackNumber = 2;     // So hieu local cua quy dao theo nguon do
+}
+
+////////================================================================================
+//2. Ban tin xoa quy dao
+message DeleteTrack {
+    int32 TrackId = 1;
+}
+
+////////================================================================================
+//3. Ban tin chua id cua cac quy dao hien tai
+message ListCurrentTracks {
+    repeated int32 TrackId = 1;
+}

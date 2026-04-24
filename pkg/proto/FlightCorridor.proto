@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package drone;
+
+option go_package = "pkg/pb";
+// import "pkg/proto/SearchOptions.proto";
+// import "pkg/proto/PatchOptions.proto";
+import "pkg/proto/SpatialAttribute.proto";
+import "pkg/proto/SearchOptions.proto";
+import "pkg/proto/PatchOptions.proto";
+import "pkg/proto/Drone.proto";
+
+message FlightCorridor {
+    string  ID          = 1;//`json:"id,omitempty" bson:"_id"`
+    double  Offset        = 2;//`json:"offset,omitempty" bson:"offset"`
+    repeated spatial_attribute.GeodeticPosition Corridor  = 3;//`json:"corridor,omitempty" bson:"corridor"`
+    string  UserID        = 4;//`json:"user_id,omitempty" bson:"user_id"`
+    repeated string LockerIDs = 5;//`json:"locker_id_list,omitempty" bson:"locker_id_list"`
+    drone.AT_VALIDATE_STATUS ValidateStatus = 6;//`json:"validate_status,omitempty" bson:"validate_status"
+    uint64 CreatedAt = 52;//`json:"created_at,omitempty" bson:"created_at"  audit:"createdAt"`
+    uint64 UpdatedAt = 53;//`json:"updated_at,omitempty" bson:"updated_at"  audit:"updatedAt"`
+    string CreatedBy = 54;//`json:"created_by,omitempty" bson:"created_by"`
+    string UpdatedBy = 55;//`json:"updated_by,omitempty" bson:"updated_by"`
+}
+
+service FlightCorridorService {
+    rpc create (FlightCorridor) returns (FlightCorridor);
+    rpc search (search_options.SearchOptions) returns (SearchFlightCorridorResponse);
+    rpc patch (patch_options.PatchOptions) returns (patch_options.PatchResponse);
+    rpc update (FlightCorridor) returns (FlightCorridor);
+}
+
+
+message SearchFlightCorridorResponse {
+    repeated FlightCorridor FlightCorridors = 1;//
+    int32 TotalCount =2;//
+}
+
+
+
+
+message FlightLane {
+    string  ID          = 1;//`json:"id,omitempty" bson:"_id"`
+    double  Offset        = 2;//`json:"offset,omitempty" bson:"offset"`
+    repeated spatial_attribute.GeodeticPositionWithTimeAndVelocity Corridor  = 3;//`json:"position,omitempty" bson:"position"`
+    string  UserID        = 4;//`json:"user_id,omitempty" bson:"user_id"`
+    string  CorridorID    = 5;//`json:"corridor_id,omitempty" bson:"corridor_id"`
+    string StartLockerID = 6;//`json:"start_locker_id,omitempty" bson:"start_locker_id"`
+    string EndLockerID = 7;//`json:"end_locker_id,omitempty" bson:"end_locker_id"`
+    AT_VALIDATE_STATUS ValidateStatus = 8;//`json:"validate_status,omitempty" bson:"validate_status"
+    double DelayTime = 9;//`json:"delay_time,omitempty" bson:"delay_time"
+    double ActualTime = 10;//`json:"actual_time,omitempty" bson:"actual_time"
+    uint64 CreatedAt = 52;//`json:"created_at,omitempty" bson:"created_at"  audit:"createdAt"`
+    uint64 UpdatedAt = 53;//`json:"updated_at,omitempty" bson:"updated_at"  audit:"updatedAt"`
+    string CreatedBy = 54;//`json:"created_by,omitempty" bson:"created_by"`
+    string UpdatedBy = 55;//`json:"updated_by,omitempty" bson:"updated_by"`
+}
+
+service FlightLaneService {
+    rpc create (FlightLane) returns (FlightLane);
+    rpc search (search_options.SearchOptions) returns (SearchFlightLaneResponse);
+    rpc patch (patch_options.PatchOptions) returns (patch_options.PatchResponse);
+    rpc update (FlightLane) returns (FlightLane);
+}
+
+
+message SearchFlightLaneResponse {
+    repeated FlightLane FlightLanes = 1;//
+    int32 TotalCount =2;//
+}

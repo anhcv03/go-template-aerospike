@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+import "pkg/proto/ag_algo/Point.proto";
+
+message GRPCRSRadar {
+    string id = 1;//
+    string name = 2;//
+    GRPCGeodeticPosition position = 3;//
+    string fSup = 4;//
+    int32 Type = 5;//`json:"type" bson:"type"`
+    repeated GRPCGeodeticPosition coverage = 6;//
+    string UnitID = 7;//`json:"unit_id" bson:"unit_id"`
+    double radius = 8;//
+}

@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package command;
+
+option go_package = "pkg/pb";
+import "pkg/proto/SearchOptions.proto";
+import "pkg/proto/PatchOptions.proto";
+
+enum AT_COMMAND_TYPE {
+    ACT_UNKNOWN = 0;
+    ACT_START = 1;
+    ACT_FINISH = 2;
+    ACT_PAUSE = 3;
+}
+
+enum AT_COMMAND_STATUS {
+    ACS_UNKNOWN = 0;
+    ACS_SENT = 1;
+    ACS_ACK = 2;
+    ACS_CANCEL = 3; 
+}
+
+message Command {
+    string ID = 1;//`json:"id,omitempty" bson:"_id"`
+    AT_COMMAND_TYPE  CommandType = 2;//`json:"command_type,omitempty" bson:"command_type"`
+    string  Source = 3;//`json:"source,omitempty" bson:"source"`
+    string  DroneID = 4;//`json:"drone_id,omitempty" bson:"drone_id"`
+    string  GcsID = 5;//`json:"gcs_id,omitempty" bson:"gcs_id"`
+    string content = 6;//`json:"content,omitempty" bson:"content"`
+    AT_COMMAND_STATUS CommandStatus = 7;//`json:"command_status,omitempty" bson:"command_status"`
+    string OrderID = 8;//`json:"order_id,omitempty" bson:"order_id"`
+    bool IsRequest  = 9;//`json:"is_request,omitempty" bson:"is_request"`
+    int32 SegmentIndex  = 10;//`json:"segment_index,omitempty" bson:"segment_index"`
+    uint64 CreatedAt = 50;//`json:"created_at,omitempty" bson:"created_at"  audit:"createdAt"`
+    uint64 UpdatedAt = 51;//`json:"updated_at,omitempty" bson:"updated_at"  audit:"updatedAt"`
+    string CreatedBy = 52;//`json:"created_by,omitempty" bson:"created_by"`
+    string UpdatedBy = 53;//`json:"updated_by,omitempty" bson:"updated_by"`
+}
+
+
+service CommandService {
+    rpc create (Command) returns (Command);
+    rpc search (search_options.SearchOptions) returns (SearchCommandResponse);
+    rpc patch (patch_options.PatchOptions) returns (patch_options.PatchResponse);
+}
+
+message SearchCommandResponse {
+    repeated Command Commands = 1;//
+    int32 TotalCount =2;//
+}

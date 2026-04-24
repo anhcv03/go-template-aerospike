@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+// ALERT
+enum AfAlertType {
+  AF_ALERT_TYPE_UNKNOWN                   = 0;
+  AF_ALERT_TYPE_ASSOCIATION               = 1;  // Canh bao lien ket
+  AF_ALERT_TYPE_MILITARY_DEVIATION        = 2;  // Canh bao lech duong bay quan su
+  AF_ALERT_TYPE_SAFE_ALTITUDE             = 3;  // Canh bao duoi do cao an toan
+  AF_ALERT_TYPE_AREA_DEVIATION            = 4;  // Cảnh báo MB ta bay lệch khỏi khu vực đã định trước
+  AF_ALERT_TYPE_COMMAND_CONTROL_TRANSFER  = 5;  // Cảnh báo MB ta đến tuyến chuyển giao chỉ huy
+  AF_ALERT_TYPE_TECHNICAL_ISSUE           = 6;  // Cảnh báo MB ta gặp sự cố kỹ thuật
+  AF_ALERT_TYPE_INSUFFICIENT_FUEL         = 7;  // Canh bao het nhien lieu
+}
+
+// Thao tac nguoi dung tren canh bao
+enum UserInteraction {
+  USER_INTERACTION_NONE    = 0;
+  USER_INTERACTION_SUSPEND = 1;    // Dap canh bao
+  USER_INTERACTION_ACCEPT  = 2;    // Chap nhan canh bao
+  USER_INTERACTION_DENY    = 3;    // Tu choi canh bao
+}
+
+message GRPCAfAlert {
+  AfAlertType type = 1; //
+  UserInteraction userInteraction = 2; //
+  int64 trackId = 3; //
+  int32 trackNumber = 4; //
+  string data = 5; //
+  double timeStamp = 7; //
+  double userInteractionTimestamp = 8;//
+}

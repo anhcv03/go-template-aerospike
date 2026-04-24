@@ -1,0 +1,28 @@
+syntax = "proto3";
+import "pkg/proto/ag_algo/InterceptRequest.proto";
+import "pkg/proto/ag_algo/Flight.proto";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+service InterceptService {
+    // create the optimal intercept route for a given aircraft in a airport
+    rpc createInterceptRouteListFromAirport(FromAirportInputList) returns (GRPCFlightList) {}
+    rpc createInterceptRouteFromAirport(FromAirportInput) returns (GRPCFlightList) {} //VQ2M2-140
+
+    // create the optimal intercept route for a given aircraft on the Combat patrol
+    rpc createInterceptRouteListFromCombatPatrol(FromCombatPatrolInputList) returns (GRPCFlightList) {}
+    rpc createInterceptRouteFromCombatPatrol(FromCombatPatrolInput) returns (GRPCFlight) {}
+
+    // update the Intercept Flight when the target change its action
+    rpc updateInterceptRouteList(UpdateInterceptInputList) returns (GRPCFlightList) {}
+    rpc updateInterceptRoute(UpdateInterceptInput) returns (GRPCFlight) {}
+
+    // edit Intercept Flight when the user adds a fixed point on the route
+    rpc editInterceptRoute(EditInterceptInput) returns (GRPCFlight) {}
+
+    rpc calcInterceptionLineRadarFromAirport(ILFromAirportInput) returns (GRPCInterceptionLineOutput) {}
+    rpc calcInterceptionLineRadarFromCombatPatrol(ILFromCombatPatrolInput) returns (GRPCInterceptionLineOutput) {}
+    rpc calcInterceptionLineProtection(ILProtectionInput) returns (GRPCInterceptionLineOutput) {}
+}

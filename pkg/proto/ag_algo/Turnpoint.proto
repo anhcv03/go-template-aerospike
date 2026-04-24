@@ -1,0 +1,48 @@
+syntax = "proto3";
+import "pkg/proto/ag_algo/Point.proto";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+enum GRPCTurnDirection {
+    TURN_DIRECTION_UNKNOWN = 0;
+    CLOCKWISE = -1;//right
+    COUNTER_CLOCKWISE = 1;//left
+}
+
+enum GRPCFlightMode {
+    TURN = 0;
+    CRUISE = 1;
+    CLIMB = 2;
+    DESCEND = 3;
+    ACCELERATE = 4;
+    DECELERATE = 5;
+    UNKNOWN_FLIGHT_MODE = 6;
+}
+
+enum GRPCStraightPointType {
+    NORMAL = 0;
+    REACH_ALTITUDE = 1;
+    REACH_SPEED = 2;
+    PREPARE_ALTITUDE = 3;
+    CIRCLE = 4;
+    LANDING_START_DESCEND = 5;
+    DROP_TANK = 6;
+}
+
+message GRPCTurnpoint {
+    GRPCPoint point = 1; //
+    GRPCTurnDirection turnDirection = 2; //
+    GRPCFlightMode flightMode = 3; //
+    GRPCStraightPointType straightType = 4; //
+    double weight = 6; //
+    double drag = 7; //
+    double expectedArrivalTime = 8; //
+    double duration = 9; //
+    double length = 10; //
+    double totalLength = 11; //
+    double fuelLeft = 12; //
+    double fuel = 14; //
+    double fuelRate = 15; //
+}

@@ -1,0 +1,31 @@
+mongo:
+  host: "localhost"
+  port: 27017
+  name: "at-order"
+  replica: ""
+  user: ""
+  pass: ""
+rabbitmq:
+  host: "localhost"
+  port: 5672
+http:
+  port: 33180
+  enable_recover_middleware: true
+  enable_cors_middleware: true
+  endpoints:
+    ms-event-listener: "http://localhost:32080"
+    ms-system: "http://localhost:33080"
+grpc:
+  port: 33165
+  channels:
+    ms-event-listener: "localhost:32065"
+    ms-system: "localhost:33065"
+other:
+  environment: "development"
+  default_lang: "en"
+  tracing_host: "localhost"
+  tracing_port: 33333
+nats:
+  server: "localhost:4222"
+jwt_token_config:
+  validate_jwt: false

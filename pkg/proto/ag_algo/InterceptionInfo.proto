@@ -1,0 +1,61 @@
+syntax = "proto3";
+import "pkg/proto/ag_algo/Point.proto";
+import "pkg/proto/ag_algo/Turnpoint.proto";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+enum GRPCApproachType {
+    FRONT = 0;
+    BACK = 1;
+}
+
+message GRPCDutyTimeInfo {
+    int32 dutyLevel = 1; //
+    double doneLevel1Time = 2; //
+    //double ykvDuration = 2; -> de hien thi, ko su dung de tinh
+    //double startEngineTime = 3; -> de hien thi, ko su dung de tinh
+    //double takeOffOnGroundDuration = 4; // Thoi gian mat dat -> su dung trong tdf info
+    double c2ToC1Duration = 5; //
+    double level1CommandTime = 6; //
+    double c3ToC2Duration = 7; //
+    double zeroToC3Duration = 8; //
+}
+
+message GRPCInterceptionLineForm {
+    GRPCGeodeticPosition point1 = 1; //
+    GRPCGeodeticPosition point2 = 2; //
+    string name = 3; //
+    double time = 4; //
+}
+
+message GRPCInterceptionInfo {
+    double cruiseBankAngle = 1; //
+    double cruiseSpeed = 2; //
+    double cruiseAltitude = 3; //
+    double fuelRate = 4; //
+    GRPCApproachInfo frontApproachInfo = 5; //
+    GRPCApproachInfo backApproachInfo = 6; //
+    GRPCTurnDirection exitCombatTurnDirection = 7; //
+    double exitCombatBankAngle = 8; //
+    double exitCombatSpeed = 9; //
+    double suggestSpeed = 10; //
+    double maxCruiseSpeed = 13; //
+    double warningCruiseSpeed = 14; //
+    GRPCApproachType approachType = 15; //
+    GRPCDutyTimeInfo dutyTimeInfo = 16; //
+}
+
+message GRPCApproachInfo {
+    GRPCTurnDirection approachDirection = 1; //
+    GRPCInterceptionLineForm interceptionLine = 2; //
+    double angleOfEntry = 3; //
+    double weaponDistance = 4; //
+    double approachSpeed = 5; //
+    double approachDistance = 6; //
+    double approachAltitude = 7; //
+    double approachBankAngle = 8; //
+    GRPCInterceptionLineForm takeoffLine = 9; //
+    GRPCInterceptionLineForm level1Line = 10; //
+}

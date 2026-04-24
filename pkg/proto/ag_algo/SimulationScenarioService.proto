@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+import "pkg/proto/ag_algo/Point.proto";
+import "pkg/proto/ag_algo/Flight.proto";
+
+service SimulationScenarioService {
+    rpc CreateScenario(CreateScenarioRequest) returns (CreateScenarioResponse) {}
+}
+
+message CreateScenarioRequest {
+    GRPCGeodeticPosition center = 1;//scenario tracks will be generated in a square with known center and edge length = 2 * radius
+    double radius = 2;//m
+    repeated GRPCScenarioTrackInput trackInputs = 3;
+}
+
+message CreateScenarioResponse {
+    repeated GRPCFlightList flightLists = 1;
+}
+
+message GRPCScenarioTrackInput {
+    int32 numberTrack = 3;//number of route (scenario track) to be generated
+    int32 trackMinSegment = 4;
+    int32 trackMaxSegment = 5;//number of segment of each route is between [min, max]
+    double trackMinSpeed = 6;//m/s
+    double trackMaxSpeed = 7;
+    int32 trackRoundSpeed = 8;//= 50m/s -> random speed must be: 50 100 150 200; will not be used if value = 0
+    double trackMinAltitude = 9;//m
+    double trackMaxAltitude = 10;
+    int32 trackRoundAltitude = 11;//m; will not be used if value = 0
+    double bankAngle = 12;//degree; = 0 -> no turn
+    double trackMinSegmentLength = 13;//m
+    double trackMaxSegmentLength = 14;
+    double trackMinStartTime = 15;//s;
+    double trackMaxStartTime = 16;//s; =0 -> all track start at them same time (at time = 0); trackMinStartTime < trackMaxStartTime
+    double trackMinEndTime = 17;//s
+    double trackMaxEndTime = 18;//s; trackMinEndTime < trackMaxEndTime;
+}

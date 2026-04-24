@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package drone;
+
+option go_package = "pkg/pb";
+import "pkg/proto/SearchOptions.proto";
+import "pkg/proto/PatchOptions.proto";
+
+
+
+enum AT_DIRECT_COMMAND_STATUS {
+    ADCS_UNKNOWN = 0;
+    ADCS_SENT = 1;
+    ADCS_ACK = 2;
+}
+
+enum AT_DIRECT_COMMAND_TYPE {
+    ADCCT_UNKNOWN = 0;
+    ADCCT_CREATE_ORDER  = 1;
+    ADCCT_OUT_OF_LANDING_ZONE = 2;
+    ADCCT_FLY_CONFLICT = 3;
+    ADCCT_JAMMING = 4;
+}
+
+message DirectCommand {
+    string  ID          = 1;//`json:"id,omitempty" bson:"_id"`
+    string  Content        = 2;//`json:"content,omitempty" bson:"content"`
+    string  Src        = 3;//`json:"src,omitempty" bson:"src"`
+    string  Dest        = 4;//`json:"dest,omitempty" bson:"dest"`
+   AT_DIRECT_COMMAND_STATUS DirectCommandStatus = 5;//`json:"command_status,omitempty" bson:"command_status"`
+    uint64 CreatedAt = 52;//`json:"created_at,omitempty" bson:"created_at"  audit:"createdAt"`
+    uint64 UpdatedAt = 53;//`json:"updated_at,omitempty" bson:"updated_at"  audit:"updatedAt"`
+    string CreatedBy = 54;//`json:"created_by,omitempty" bson:"created_by"`
+    string UpdatedBy = 55;//`json:"updated_by,omitempty" bson:"updated_by"`
+    AT_DIRECT_COMMAND_TYPE DirectCommandType = 56;//`json:"direct_command_type,omitempty" bson:"direct_command_type"`
+    string ResponseContent = 57;//`json:"response_content,omitempty" bson:"response_content"`
+}
+
+service DirectCommandService {
+    rpc create (DirectCommand) returns (DirectCommand);
+    rpc search (search_options.SearchOptions) returns (SearchDirectCommandResponse);
+    rpc patch (patch_options.PatchOptions) returns (patch_options.PatchResponse);
+    rpc update (DirectCommand) returns (DirectCommand);
+}
+
+message SearchDirectCommandResponse {
+    repeated DirectCommand DirectCommands = 1;//
+    int32 TotalCount =2;//
+}

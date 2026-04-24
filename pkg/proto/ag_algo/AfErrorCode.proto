@@ -1,0 +1,157 @@
+syntax = "proto3";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+// ERROR CODE
+enum GRPCAfErrorCode {
+  RC_SUCCESS = 0;
+  RC_UNKNOWN = 1;
+
+  //calculate route code 2-49
+  UNKNOWN_TURN_TYPE = 2;
+  NO_INPUT_WAYPOINT = 3;
+  INCORRECT_FIRST_TURN_TYPE = 4;
+  INCORRECT_LAST_TURN_TYPE = 5;
+  POINT_IN_CIRCLE = 6;//no tangent from a point as the point is on/inside the circle
+  CIRCLE_IN_CIRCLE = 7;//no common tangent line as a circle is inside the other circle
+  WAYPOINT_TOO_CLOSE = 8;//2 waypoints are too close to each other
+  UNMATCHED_TURN_DIRECTION = 9;
+  NO_BACKWARD_SOLUTION = 10;//cannot generate a solution from END_TURN waypoint
+  TURN_BEFORE_IMPOSSIBLE = 11;
+  NO_AREA_POINT = 12;//area has no entry/exit point
+
+  //flight route
+  NULL_PLANNED_TRACK = 13;
+  WRONG_ROUTE_TYPE = 14;//pass enum FlightRouteType as parameter not correct
+  EDIT_PASSED_WAYPOINT = 15;
+  NOT_ENOUGH_FUEL = 17;//last waypoint fuel < 0
+  NOT_ENOUGH_FUEL_HOLDING = 18;//last waypoint does not have enough fuel for holding and alternative airport
+  NO_HANDOVER_POINT = 19;//handover point is out of segment or handover line is // segment -> no intersection point
+  NO_SAFE_ALTITUDE_DATA = 20;
+  RC_WARNING_SPEED = 21;//warning speed <= cruise speed < max speed (use in intercept before interception line)
+  RC_MAX_SPEED = 22;//max speed <= cruise speed (use in intercept before interception line)
+  NO_CHECKPOINT = 23;
+
+  //interception line
+  NEGATIVE_DETECTION_DISTANCE = 50;
+  ZERO_INTERCEPTOR_SPEED = 51;
+  NEGATIVE_INTERCEPTION_DISTANCE = 52;
+
+  //correct flight
+  RC_FC_FlightIsSlower = 90;
+  RC_FC_ShortRemainTime = 91;
+  RC_FC_VelocityOutOfRange = 92;
+  RC_FC_HeadingOutOfRange = 93;
+  RC_FC_ShortRemainDistance = 94;
+  RC_FC_NOT_CRUISE = 95;
+
+  //convert coordinate
+  RC_CC_SMALLER_THAN_MIN_LONGITUDE = 96;
+  RC_CC_BIGGER_THAN_MAX_LONGITUDE = 97;
+  RC_CC_SMALLER_THAN_MIN_LATITUDE = 98;
+  RC_CC_BIGGER_THAN_MAX_LATITUDE = 99;
+  RC_NULL_POINTER = 100;
+
+  RC_APPROACH_LANDING = 110;
+  RC_AP_WRONG_GLIDE_SLOPE_PARAM = 111;
+  RC_AP_SMALL_DISTANCE_TO_V1 = 112;
+  RC_AP_NO_BEACON = 113;
+
+  /**************************** Detail fuel code 200-499 ******************************/
+  //detail fuel calculate
+
+  RC_DFC_LengthTooLong = 201;
+  RC_DFC_OverMaxSpeed = 205;
+  RC_DFC_OverMaxAltitude = 206;
+  RC_DFC_InvalidAltitude = 207;
+  RC_DFC_DbError = 208;
+  RC_DFC_InvalidSpeed = 209;
+  RC_DFC_InvalidWeight = 210;
+  RC_DFC_InvalidDrag = 211;
+  RC_DFC_InvalidTemperature = 212;
+  RC_DFC_InvalidAltitudeDrag = 213;
+  RC_DFC_InvalidWeightDrag = 214;
+  RC_DFC_InvalidWeightDragSpeed = 215;
+  RC_DFC_InvalidAltitudeDragWeight = 216;
+  RC_DFC_InvalidAltitudeSpeedWeight = 217;
+  RC_DFC_InvalidAltitudeSpeed = 218;
+  RC_DFC_InvalidOkptSpeed = 219;
+  RC_DFC_InvalidEngineMode = 220;
+
+
+  /**************************** Intercept code 500-699 ******************************/
+  RC_IN_HEADING_NOT_FOUND = 500;
+  RC_IN_OVER_MAX_DISTANCE = 501;
+  RC_IN_TARGET_TOO_CLOSE = 502;
+  RC_IN_NOT_OVER_SAFE_ALTITUDE = 503;
+  RC_IN_FLIGHT_FINISHED = 504;
+  RC_IN_CRUISE_FINISHED = 505;
+
+  RC_IN_CANNOT_FIND_INITIAL_TURN = 506;
+  RC_IN_CANNOT_FIND_FINAL_TURN = 507;
+  RC_IN_FINISHED_CRUISE = 508;
+  RC_IN_OUT_OF_BORDER = 509;//meetpoint is not in border
+}
+
+enum GRPCCalculateType {
+  CT_GetAccelerateFuel = 0;
+  CT_GetAccelerateLength = 1;
+  CT_GetAccelerateTime = 2;
+  CT_LookupDescendFuel = 3;
+  CT_LookupDescendLength = 4;
+  CT_LookupDescendTime = 5;
+  CT_LookupClimbFuel = 6;
+  CT_LookupClimbLength = 7;
+  CT_LookupClimbTime = 8;
+  CT_LookupAccelerateFuel = 9;
+  CT_LookupAccelerateLength = 10;
+  CT_LookupAccelerateTime = 11;
+  CT_LookupOKPT = 12;
+  CT_LookupFuelRate = 13;
+  CT_LookupDecelerateFuel = 14;
+  CT_LookupDecelerateLength = 15;
+  CT_LookupDecelerateTime = 16;
+  CT_ConvertClockToRealSpeed = 17;
+  CT_ConvertClockToRelativeSpeed = 18;
+  CT_ConvertRealToClockSpeed = 19;
+  CT_ConvertRealToRelativeSpeed = 20;
+  CT_ConvertRelativeToRealSpeed = 21;
+  CT_LookupMaxDistance = 22;
+  CT_LookupMaxDistanceCeiling = 23;
+  CT_LookupMaxDuration = 24;
+  CT_LookupMaxDurationCeiling = 25;
+  CT_LookupMaxAltitude = 26;
+  CT_LookupLowPressureRotorSpeed = 27;
+  CT_LookupHorizontalFuelRate = 28;
+  CT_LookupMaxSpeed = 29;
+  CT_LookupFuel = 30;
+  CT_None = 31;
+}
+
+enum GRPCFlightPhrase {
+  FlightPhrase_Turn = 0;
+  FlightPhrase_DescendAltitude = 1;
+  FlightPhrase_ClimbAltitude = 2;
+  FlightPhrase_Decelerate = 3;
+  FlightPhrase_Accelerate = 4;
+  FlightPhrase_FlyHorizontal = 5;
+  FlightPhrase_PrepareAltitude = 6;
+  FlightPhrase_EntryArea = 7;
+  FlightPhrase_FlyMaxSpeed = 8;
+  FlightPhrase_FlyMaxDistance = 9;
+  FlightPhrase_FlyMaxDistanceCeiling = 10;
+  FlightPhrase_FlyMaxDuration = 11;
+  FlightPhrase_FlyMaxDurationCeiling = 12;
+  FlightPhrase_FlyMaxAltitude = 13;
+  FlightPhrase_None = 14;
+}
+
+message GRPCErrorInfo {
+  GRPCAfErrorCode errorCode = 1; //
+  string errorData = 2; //
+  GRPCCalculateType calculateType = 3; //
+  GRPCFlightPhrase flightPhrase = 4; //
+  string waypointName = 5; //
+}

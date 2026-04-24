@@ -1,0 +1,65 @@
+syntax = "proto3";
+import "pkg/proto/ag_algo/FlightRoute.proto";
+import "pkg/proto/ag_algo/Flight.proto";
+import "pkg/proto/ag_algo/Waypoint.proto";
+import "pkg/proto/ag_algo/Point.proto";
+import "pkg/proto/ag_algo/Turnpoint.proto";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+message CreateRouteRequest { 
+    GRPCFlightRoute route = 1; //
+}
+
+message EditRouteRequest { 
+    GRPCFlightRoute oldRoute = 1; //
+    GRPCFlightRoute newRoute = 2; //
+}
+
+message CreateFlightRequest { 
+    GRPCFlight flight = 1; //
+}
+
+message EditFlightRequest { 
+    GRPCFlight oldFlight = 1; //
+    GRPCFlight newFlight = 2; //
+}
+
+message DigitizedArc {
+    repeated GRPCWaypoint waypoints = 1; //
+}
+
+message LandingRequest {
+  GRPCFlight flight = 1; //
+  GRPCGeodeticState track = 2; //
+}
+
+message LandingResponse {
+  repeated GRPCFlightRoute landingRoutes = 1; //
+}
+
+message EditHandoverLineRequest {
+    GRPCFlightRoute route = 1; //
+    string handoverLineName = 2; //
+}
+
+message CorrectionRequest {
+    GRPCFlight flight = 1; //
+    GRPCGeodeticState track = 2; //
+    double deviateAngle = 3; //
+    GRPCTurnDirection turnDirection = 4; //
+    double bankAngle = 5; //
+}
+
+message CorrectionResponse {
+    GRPCFlight flight = 1; //
+    double speed = 2; //
+    double heading = 3; //
+    double duration = 4; //
+}
+
+message CorrectionResponses {
+    repeated CorrectionResponse flights = 1; //
+}

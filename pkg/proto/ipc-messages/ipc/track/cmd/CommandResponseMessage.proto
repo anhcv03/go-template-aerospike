@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package com.vht.bms.messages;
+
+option java_package = "com.vht.bms.messages.track.cmd";
+option java_outer_classname = "CommandResponseMessageProto";
+option go_package = "./ipc";
+
+import "ipc/track/TrackMessage.proto";
+
+// Response after process CommandContentMessage
+message CommandResponseMessage {
+    string command_id = 1;       // Required. Correspond with the command_id in CommandContentMessage
+    int32 response_code = 2;    // Response code = 0 => SUCCESS, otherwise is FAILED
+
+    // List of tracks which are updated after performing command (including new tracks, excluding removed tracks)
+    repeated TrackMessage tracks = 3;
+    ResponseDetail detail = 4;
+}
+
+message ResponseDetail {
+    string command_id = 1;
+    int32 command_type = 2;         // Refer to CommandTypes.proto
+    bytes detail = 3;               // Depend on command type
+}

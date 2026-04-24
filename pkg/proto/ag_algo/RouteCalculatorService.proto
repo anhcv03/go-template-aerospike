@@ -1,0 +1,33 @@
+syntax = "proto3";
+import "pkg/proto/ag_algo/RouteRequest.proto";
+import "pkg/proto/ag_algo/FlightRoute.proto";
+import "pkg/proto/ag_algo/Flight.proto";
+import "pkg/proto/ag_algo/DirectGuidanceCommand.proto";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+service RouteCalculatorService {
+    rpc CreateRoute(CreateRouteRequest) returns (GRPCFlightRoute) {}
+    rpc EditRoute(EditRouteRequest) returns (GRPCFlightRoute) {}
+
+    rpc CreateFlight(CreateFlightRequest) returns (GRPCFlight) {}
+    rpc EditFlight(EditFlightRequest) returns (GRPCFlight) {}
+
+    rpc GetSafeAltitude(GRPCFlightRoute) returns (GRPCFlightRoute) {}
+    //rpc EditHandoverLine(EditHandoverLineRequest) returns (GRPCHandoverLine) {}
+
+    rpc GetCorrectionWave(CorrectionRequest) returns (CorrectionResponse) {} //get correction flight return to route, if not return to route solution, return flight that go to next waypoint
+    rpc GetCorrectionVelocity(CorrectionRequest) returns (CorrectionResponse) {}
+    rpc GetAllCorrectionWave(CorrectionRequest) returns (CorrectionResponses) {} //get correction flight that go to next waypoint and flight return to route
+    rpc GetAllCorrectionVelocity(CorrectionRequest) returns (CorrectionResponses) {}
+
+    rpc DirectGuidance(DirectGuidanceCommand) returns (GRPCFlight) {}
+
+    //chua su dung
+    //rpc GetDigitizedArcPoints(DigitizedArc) returns (DigitizedArc) {}
+
+    rpc getLandingSolution (LandingRequest) returns (LandingResponse);
+    rpc getLandingSolutionForDestAirport (LandingRequest) returns (LandingResponse);
+}

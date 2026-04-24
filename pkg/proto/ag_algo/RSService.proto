@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package com.vht.afad.afmessages;
+
+option go_package = "./ag";
+
+import "pkg/proto/ag_algo/RSRadar.proto";
+import "pkg/proto/ag_algo/RSSchedule.proto";
+
+message GRPCRSRequest {
+    int32 stateSSCD = 1;//
+
+    /*
+    Danh sach theo thu tu: gio mo radar tam xa, % radar tam trung-thap, % radar VRS (2 gia tri interval cho moi loai radar)
+    Vi du: radarUsages[2] radarUsages[3]) la % radar tam trung-thap
+     */
+    repeated double radarUsages = 2;//
+
+    repeated GRPCRSRadar radars = 3;//
+    int32 nSolution = 4;//
+
+    /* thu tu uu tien 12 phien:     0   2   4   6   8   10  12  14  16  18  20  22
+    danh so phien                   0   1   2   3   4   5   6   7   8   9   10  11
+    default priority                1   2   4   11  7   9   12  8   10  6   5   3 (higher value = higher priority)
+    so phien theo thu tu giam dan   6   3   8   5   7   4   9   10  2   11  1   0
+     */
+    repeated int32 hourPriority = 5;//
+
+    /* thu tu uu tien phien cho radar tam xa            0   2   4   6   8   10  12  14  16  18  20  22
+    danh so phien                                       0   1   2   3   4   5   6   7   8   9   10  11
+    default priority (higher value = higher priority)   -1  -1  -1  11  7   9   12  8   10  6   -1  -1
+    (cac phien 06-20h)
+    so phien theo thu tu giam dan                       6   3   8   5   7   4   9
+     */
+    repeated int32 hourPriorityLongRange = 6;//
+
+    /* thu tu uu tien phien cho radar VRS               0   2   4   6   8   10  12  14  16  18  20  22
+    danh so phien                                       0   1   2   3   4   5   6   7   8   9   10  11
+    default priority (higher value = higher priority)   -1  -1  -1  11  -1  9   12  -1  10  -1  -1  -1
+    cac phien uu tien cho VRS khi trang thai SSCD la Thuong xuyen hoac Tang cuong:
+    so phien theo thu tu giam dan                       6   3   8   5
+    SSCD = Cao -> dung hourPriorityLongRange
+     */
+    repeated int32 hourPriorityVRS = 7;//
+    string name = 8;//
+    string idRequest = 9;//
+    int64 duration = 10;//
+}
+
+message GRPCRSResponse {
+    repeated GRPCRSSchedule schedules = 1;//
+    string idRequest = 2;//
+    string errorMsg = 3;//
+}
+
+message GRPCRSRequestList {
+    repeated GRPCRSRequest requests= 1;//
+}
+message GRPCRSResponseList {
+    repeated GRPCRSResponse responses = 1;//
+}
+
+message GRPCRequestStatus {
+	int32 statusCode = 1;//
+	string msg = 2;//
+}
+
+service RSService {
+    rpc CalculateRS(GRPCRSRequest) returns (GRPCRequestStatus) {}
+    rpc SendRequestRS(GRPCRSRequest) returns (GRPCRequestStatus) {}
+    rpc SendRequestListRS(GRPCRSRequestList) returns (GRPCRequestStatus) {}
+}
