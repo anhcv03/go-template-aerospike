@@ -16,7 +16,7 @@ import (
 const TRACK_SUBJECT = "ipc-track"
 
 type ServiceConfig struct {
-	DbConfig     PostgresqlConfig `mapstructure:"postgres"`
+	DbConfig     AerospikeConfig `mapstructure:"aerospike"`
 	GrpcConfig   GrpcConfig       `mapstructure:"grpc"`
 	HttpConfig   HttpConfig       `mapstructure:"http"`
 	LoggerConfig LoggerConfig     `mapstructure:"logger"`
@@ -54,11 +54,19 @@ func LoadConfig(path string) (cfg ServiceConfig, err error) {
 func setDefaultValue() {
 	viper.SetDefault("other.environment", "development")
 
-	viper.SetDefault("postgres.host", "127.0.0.1")
-	viper.SetDefault("postgres.port", 5432)
-	viper.SetDefault("postgres.name", "vqc-pk")
-	viper.SetDefault("postgres.user", "postgres")
-	viper.SetDefault("postgres.pass", "123456")
+	viper.SetDefault("aerospike.host", "127.0.0.1")
+	viper.SetDefault("aerospike.port", 3000)
+	viper.SetDefault("aerospike.hosts", []string{})
+	viper.SetDefault("aerospike.namespace", "track_manager")
+	viper.SetDefault("aerospike.user", "")
+	viper.SetDefault("aerospike.pass", "")
+	viper.SetDefault("aerospike.connection_queue_size", 100)
+	viper.SetDefault("aerospike.min_connections_per_node", 0)
+	viper.SetDefault("aerospike.idle_timeout_ms", 0)
+	viper.SetDefault("aerospike.connect_timeout_ms", 30000)
+	viper.SetDefault("aerospike.tend_interval_ms", 1000)
+	viper.SetDefault("aerospike.warm_up_connections", 10)
+	viper.SetDefault("aerospike.use_services_alternate", false)
 
 	viper.SetDefault("http.port", 8080)
 	viper.SetDefault("http.enable_recover_middleware", true)

@@ -199,7 +199,7 @@ func RunCommand(ctx context.Context, options CommandOption) (string, string, err
 	err := cmd.Run()
 	if err != nil {
 		if len(stdErr.Bytes()) > 0 {
-			err = fmt.Errorf(stdErr.String())
+			err = fmt.Errorf("%s", stdErr.String())
 		}
 	}
 

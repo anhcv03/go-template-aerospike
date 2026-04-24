@@ -2,8 +2,12 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"sort"
 	"time"
 
+	as "github.com/aerospike/aerospike-client-go/v8"
+	astypes "github.com/aerospike/aerospike-client-go/v8/types"
 	"github.com/rs/zerolog/log"
 	"gitlab.vht.vn/tt-kttt/lae-project/utm/utm-track-manager/internal/model/dbmodel"
 	"gitlab.vht.vn/tt-kttt/lae-project/utm/utm-track-manager/internal/model/httpmodel"
@@ -21,6 +25,7 @@ func (s *MainService) CreateTrackHistory(track *pb.Track) error {
 		Velocity:       track.Velocity,
 		Heading:		track.Heading,
 		Identification: int32(*track.Identification),
+		CreatedAt:      time.Now().UnixMilli(),
 	}
 
 	s.historyCh <- trackHistoryObj
@@ -85,18 +90,64 @@ func (s *MainService) ProcessBatchHistory(ctx context.Context) {
 }
 
 func (s *MainService) InsertBatchTrackHistory(ctx context.Context, batch []*dbmodel.TrackHistory) error {
-	err := s.DbClient.WithContext(ctx).Create(&batch).Error
+	writePolicy := as.NewWritePolicy(0, 0)
+	writePolicy.SendKey = true
 
-	return err
+	for _, item := range batch {
+		if item == nil {
+			continue
+		}
+
+		key, err := as.NewKey(s.SvcConfig.DbConfig.Namespace, trackHistorySetName, historyRecordKey(item.TrackId, item.CreatedAt))
+		if err != nil {
+			return err
+		}
+
+		err = s.DbClient.PutBins(writePolicy, key,
+			as.NewBin(trackIDBinName, int64(item.TrackId)),
+			as.NewBin("track_num", int64(item.TrackNumber)),
+			as.NewBin("altitude", item.Altitude),
+			as.NewBin("latitude", item.Latitude),
+			as.NewBin("longitude", item.Longitude),
+			as.NewBin("velocity", item.Velocity),
+			as.NewBin("heading", item.Heading),
+			as.NewBin("ident", int64(item.Identification)),
+			as.NewBin("created_at", item.CreatedAt),
+		)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (s *MainService) DeleteTrackHistory(trackId int32) error {
 	log.Debug().Msgf("delete track history id %d", trackId)
 
-	err := s.DbClient.Where("track_id = ?", trackId).Delete(&dbmodel.TrackHistory{}).Error
+	recordset, err := s.queryTrackHistoryByTrackID(trackId, false)
 	if err != nil {
-		log.Error().Err(err).Msgf("delete track history id %d failed", trackId)
+		log.Error().Err(err).Msgf("query track history id %d failed", trackId)
 		return err
+	}
+	defer recordset.Close()
+
+	writePolicy := as.NewWritePolicy(0, 0)
+
+	for res := range recordset.Results() {
+		if res.Err != nil {
+			log.Error().Err(res.Err).Msgf("iterate track history id %d failed", trackId)
+			return res.Err
+		}
+
+		if res.Record == nil || res.Record.Key == nil {
+			continue
+		}
+
+		if _, err := s.DbClient.Delete(writePolicy, res.Record.Key); err != nil && !err.Matches(astypes.KEY_NOT_FOUND_ERROR) {
+			log.Error().Err(err).Msgf("delete track history id %d failed", trackId)
+			return err
+		}
 	}
 
 	return nil
@@ -104,16 +155,130 @@ func (s *MainService) DeleteTrackHistory(trackId int32) error {
 
 func (s *MainService) FindByTrackId(ctx context.Context, trackId, numOfHistory int) ([]httpmodel.TrackHistory, error) {
 	log.Debug().Msgf("get history of track id %d", trackId)
-	var result []httpmodel.TrackHistory
-
-	err := s.DbClient.Model(&dbmodel.TrackHistory{}).
-		Select("*").Where("track_id = ?", trackId).
-		Order("created_at desc").Limit(numOfHistory).
-		Scan(&result).Error
-
+	recordset, err := s.queryTrackHistoryByTrackID(int32(trackId), true)
 	if err != nil {
-		return result, err
+		return nil, err
+	}
+	defer recordset.Close()
+
+	result := make([]httpmodel.TrackHistory, 0, numOfHistory)
+	for res := range recordset.Results() {
+		if res.Err != nil {
+			return nil, res.Err
+		}
+		if res.Record == nil {
+			continue
+		}
+
+		item, err := historyFromBins(res.Record.Bins)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, item)
 	}
 
-	return result, err
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].CreatedAt > result[j].CreatedAt
+	})
+
+	if numOfHistory > 0 && len(result) > numOfHistory {
+		result = result[:numOfHistory]
+	}
+
+	return result, nil
+}
+
+func (s *MainService) queryTrackHistoryByTrackID(trackID int32, includeBins bool) (*as.Recordset, error) {
+	queryPolicy := as.NewQueryPolicy()
+	queryPolicy.ExpectedDuration = as.SHORT
+	queryPolicy.IncludeBinData = includeBins
+	stmt := as.NewStatement(s.SvcConfig.DbConfig.Namespace, trackHistorySetName)
+	stmt.SetFilter(as.NewEqualFilter(trackIDBinName, int64(trackID)))
+
+	return s.DbClient.Query(queryPolicy, stmt)
+}
+
+func historyRecordKey(trackID int32, createdAt int64) string {
+	return fmt.Sprintf("%d:%d", trackID, createdAt)
+}
+
+func historyFromBins(bins as.BinMap) (httpmodel.TrackHistory, error) {
+	return httpmodel.TrackHistory{
+		TrackId:        int32(readInt64Bin(bins, trackIDBinName)),
+		TrackNumber:    int32(readInt64Bin(bins, "track_num")),
+		Altitude:       readFloat32Bin(bins, "altitude"),
+		Latitude:       readFloat32Bin(bins, "latitude"),
+		Longitude:      readFloat32Bin(bins, "longitude"),
+		Velocity:       readFloat32Bin(bins, "velocity"),
+		Identification: int32(readInt64Bin(bins, "ident")),
+		CreatedAt:      readInt64Bin(bins, "created_at"),
+	}, nil
+}
+
+func readInt64Bin(bins as.BinMap, key string) int64 {
+	value, ok := bins[key]
+	if !ok || value == nil {
+		return 0
+	}
+
+	switch v := value.(type) {
+	case int:
+		return int64(v)
+	case int8:
+		return int64(v)
+	case int16:
+		return int64(v)
+	case int32:
+		return int64(v)
+	case int64:
+		return v
+	case uint8:
+		return int64(v)
+	case uint16:
+		return int64(v)
+	case uint32:
+		return int64(v)
+	case uint64:
+		return int64(v)
+	case float32:
+		return int64(v)
+	case float64:
+		return int64(v)
+	default:
+		return 0
+	}
+}
+
+func readFloat32Bin(bins as.BinMap, key string) float32 {
+	value, ok := bins[key]
+	if !ok || value == nil {
+		return 0
+	}
+
+	switch v := value.(type) {
+	case float32:
+		return v
+	case float64:
+		return float32(v)
+	case int:
+		return float32(v)
+	case int8:
+		return float32(v)
+	case int16:
+		return float32(v)
+	case int32:
+		return float32(v)
+	case int64:
+		return float32(v)
+	case uint8:
+		return float32(v)
+	case uint16:
+		return float32(v)
+	case uint32:
+		return float32(v)
+	case uint64:
+		return float32(v)
+	default:
+		return 0
+	}
 }

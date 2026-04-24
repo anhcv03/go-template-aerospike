@@ -2,19 +2,19 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"reflect"
 	"strings"
 	"sync"
 	"time"
 
+	as "github.com/aerospike/aerospike-client-go/v8"
 	config "gitlab.vht.vn/tt-kttt/lae-project/utm/utm-track-manager/internal/config"
+	dbstore "gitlab.vht.vn/tt-kttt/lae-project/utm/utm-track-manager/internal/db"
 	gclient "gitlab.vht.vn/tt-kttt/lae-project/utm/utm-track-manager/internal/gapi/client"
 	"gitlab.vht.vn/tt-kttt/lae-project/utm/utm-track-manager/internal/hapi/websocket"
 	"gitlab.vht.vn/tt-kttt/lae-project/utm/utm-track-manager/internal/model/dbmodel"
 	pb "gitlab.vht.vn/tt-kttt/lae-project/utm/utm-track-manager/pkg/pb"
-	"gorm.io/gorm"
 
 	moptions "go.mongodb.org/mongo-driver/mongo/options"
 
@@ -27,7 +27,14 @@ import (
 )
 
 const (
-	ORDER_SERVICE = "order"
+	ORDER_SERVICE             = "order"
+	trackSetName             = "tracks"
+	trackHistorySetName      = "track_history"
+	trackIDBinName           = "track_id"
+	tracksSetIndexName       = "tracks_set_idx"
+	trackHistorySetIndexName = "th_set_idx"
+	tracksTrackIDIndexName   = "tracks_tid_idx"
+	trackHistTrackIDIndexName = "th_tid_idx"
 )
 
 var db *qmgo.Database
@@ -43,7 +50,7 @@ func initColl() {
 }
 
 type MainService struct {
-	DbClient       *gorm.DB
+	DbClient       *as.Client
 	gClient        *gclient.Client
 	SvcConfig      *config.ServiceConfig
 	scheduler      *gocron.Scheduler
@@ -102,7 +109,7 @@ func (us *MainService) publishEvent(ctx context.Context, data []byte, routingKey
 	return err
 }
 
-func New(dbClient *gorm.DB, cfg config.ServiceConfig, nc *nats.Conn, socketServer *socketio.Server) *MainService {
+func New(dbClient *as.Client, cfg config.ServiceConfig, nc *nats.Conn, socketServer *socketio.Server) *MainService {
 	// db = dbClient.Database(cfg.DbConfig.DBName)
 
 	// initColl()
@@ -142,16 +149,27 @@ func (us *MainService) SetOrderHub(hub *websocket.Hub) {
 }
 
 func (s *MainService) MigrateDB() error {
-	schemaName := "track_manager"
-	createSchemaSQL := fmt.Sprintf("CREATE SCHEMA IF NOT EXISTS %s", schemaName)
-	if err := s.DbClient.Exec(createSchemaSQL).Error; err != nil {
-		log.Error().Err(err).Msg("create schema failed")
+	namespace := s.SvcConfig.DbConfig.Namespace
+
+	if err := dbstore.EnsureSetIndex(s.DbClient, namespace, trackSetName, tracksSetIndexName); err != nil {
+		log.Error().Err(err).Msg("create tracks set index failed")
 		return err
 	}
-	// ONLY USE FOR DEV + TEST, MUST MANUAL MIGRATE ON PRODUCTION USING EXTERNAL TOOL
-	// s.DbClient.AutoMigrate(&dbmodel.MilitaryEquipment{}, &dbmodel.OtherModel)
-	s.DbClient.AutoMigrate(
-		&dbmodel.Track{},
-		&dbmodel.TrackHistory{} )
+
+	if err := dbstore.EnsureSetIndex(s.DbClient, namespace, trackHistorySetName, trackHistorySetIndexName); err != nil {
+		log.Error().Err(err).Msg("create track history set index failed")
+		return err
+	}
+
+	if err := dbstore.EnsureSecondaryIndex(s.DbClient, namespace, trackSetName, tracksTrackIDIndexName, trackIDBinName, as.NUMERIC); err != nil {
+		log.Error().Err(err).Msg("create tracks track_id index failed")
+		return err
+	}
+
+	if err := dbstore.EnsureSecondaryIndex(s.DbClient, namespace, trackHistorySetName, trackHistTrackIDIndexName, trackIDBinName, as.NUMERIC); err != nil {
+		log.Error().Err(err).Msg("create track history track_id index failed")
+		return err
+	}
+
 	return nil
 }

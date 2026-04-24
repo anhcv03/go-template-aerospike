@@ -13,8 +13,8 @@ import (
 	gapi "gitlab.vht.vn/tt-kttt/lae-project/utm/utm-track-manager/internal/gapi"
 	hapi "gitlab.vht.vn/tt-kttt/lae-project/utm/utm-track-manager/internal/hapi"
 	router "gitlab.vht.vn/tt-kttt/lae-project/utm/utm-track-manager/internal/hapi/router"
+	dbstore "gitlab.vht.vn/tt-kttt/lae-project/utm/utm-track-manager/internal/db"
 	service "gitlab.vht.vn/tt-kttt/lae-project/utm/utm-track-manager/internal/service"
-	postgresDB "gitlab.vht.vn/tt-kttt/lae-project/utm/utm-track-manager/internal/db"
 
 	"github.com/nats-io/nats.go"
 	"github.com/rs/zerolog"
@@ -109,8 +109,9 @@ func runServer(args []string) {
 	/**
 	* Connect database
 	 */
-	pgd := postgresDB.NewPostgresConnection(cfg.DbConfig)
-	db := pgd.ConnectDatabase()
+	aerospikeDB := dbstore.NewAerospikeConnection(cfg.DbConfig)
+	db := aerospikeDB.ConnectDatabase()
+	defer db.Close()
 
 	// /**
 	// * Start RabbitMQ client connection

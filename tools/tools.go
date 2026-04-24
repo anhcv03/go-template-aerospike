@@ -1,3 +1,6 @@
+//go:build tools
+// +build tools
+
 package tools
 
 // This file may incorporate tools that may be *both* used as CLI and as lib
